@@ -1,4 +1,4 @@
-const generate = require("./sample_gaussian_distr");
+const generate = require("./sample_distr");
 const w = require("./wind");
 
 class Consumption {
