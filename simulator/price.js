@@ -1,25 +1,24 @@
-const consumption = require("./electricity_consumption");
-
-class Price {
+module.exports = class Price {
     demandPrice;
     windPrice;
     windFactor;
     consumptionFactor;
-    c;
-    constructor() {
-        this.c = new consumption();
+    currentPrice;
+    constructor(consumption, wph) {
         this.windFactor = 0.2;
         this.consumptionFactor = 0.04;
+        this.setPrice(consumption, wph);
     }
-    price() {
+    setPrice(consumption, wph) {
         //avg price = 2.15 kr / (kW/h)
-        return this.demandPrice + this.windPrice;
+        this.generateWindPrice(wph);
+        this.generateDemandPrice(consumption);
+        this.currentPrice = this.demandPrice + this.windPrice;
     }
-    generateDemandPrice() {
-        this.c.generateAvgConsumption();
-        this.demandPrice = this.c.consumption * this.consumptionFactor;
+    generateDemandPrice(consumption) {
+        this.demandPrice = consumption * this.consumptionFactor;
     }
-    generateWindPrice() {
-        this.windPrice = (7.5 - this.c.wind.avgWindHour) * this.windFactor;
+    generateWindPrice(wph) {
+        this.windPrice = (7.5 - wph) * this.windFactor;
     }
 }

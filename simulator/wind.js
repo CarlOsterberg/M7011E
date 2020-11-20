@@ -8,6 +8,8 @@ module.exports = class Wind {
     constructor() {
         this.min = 15;
         this.max = 0;
+        this.generateAvgWindDay();
+        this.generateAvgWindHour();
     }
     generateAvgWindDay() {
         this.avgWindDay = generate.nrml_distr_val(this.min,this.max);
