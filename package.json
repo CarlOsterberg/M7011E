@@ -2,6 +2,7 @@
   "name": "M7011E",
   "version": "1.0.0",
   "dependencies": {
+    "bootstrap": "^4.5.3",
     "express": "^4.17.1"
   },
   "devDependencies": {

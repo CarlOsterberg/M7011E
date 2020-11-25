@@ -1,54 +1,42 @@
-var express = require('express');
-var { graphqlHTTP } = require('express-graphql');
-var { buildSchema } = require('graphql');
+const express = require('express');
+const {graphqlHTTP} = require('express-graphql');
+const {buildSchema} = require('graphql');
 const s = require("./sim");
 
 let simulator = new s();
 
 // Construct a schema, using GraphQL schema language
-var schema = buildSchema(`
-  type Query {
-    price: Float
-    wph: Float
-    wpd: Float
-    demand: Float
-    production: Float
-    update_day: Boolean
-    update_hour: Boolean
-  }
+
+
+
+const schema = buildSchema(`
+    type Query {
+        price: Float!
+        wph: Float!
+        wpd: Float!
+        demand: Float!
+        production: Float!
+    }
+    type Simulator {
+        
+    }
 `);
 
+
+
 // The root provides a resolver function for each API endpoint
-var root = {
-    price: () => {
-        return simulator.priceObj.currentPrice;
-    },
-    wph: () => {
-        return simulator.windObj.avgWindHour;
-    },
-    wpd: () => {
-        return simulator.windObj.avgWindDay;
-    },
-    demand: () => {
-        return simulator.consumptionObj.consumption;
-    },
-    production: () => {
-        return simulator.productionObj.prod;
-    },
-    update_hour: () => {
-        simulator.updateHour();
-        return true;
-    },
-    update_day: () => {
-        simulator.updateDay();
-        return true;
-    },
-};
+const Query = {
+    price: () => simulator.priceObj.currentPrice,
+    wph: () => simulator.windObj.avgWindHour,
+    wpd: () => simulator.windObj.avgWindDay,
+    demand: () => simulator.consumptionObj.consumption,
+    production: () => simulator.productionObj.prod,
+}
 
 var app = express();
 app.use('/graphql', graphqlHTTP({
     schema: schema,
-    rootValue: root,
+    rootValue: Query,
     graphiql: true,
 }));
 app.listen(4000);
