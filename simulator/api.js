@@ -17,9 +17,6 @@ const schema = buildSchema(`
         demand: Float!
         production: Float!
     }
-    type Simulator {
-        
-    }
 `);
 
 
