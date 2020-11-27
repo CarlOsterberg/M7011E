@@ -2,12 +2,15 @@
   "name": "M7011E",
   "version": "1.0.0",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "bootstrap": "^4.5.3",
     "bootstrap-icons": "^1.1.0",
     "express": "^4.17.1"
   },
   "devDependencies": {
     "express-graphql": "^0.11.0",
-    "graphql": "^15.4.0"
+    "express-session": "^1.17.1",
+    "graphql": "^15.4.0",
+    "mongodb": "^3.6.3"
   }
 }
