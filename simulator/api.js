@@ -19,8 +19,6 @@ const schema = buildSchema(`
     }
 `);
 
-
-
 // The root provides a resolver function for each API endpoint
 const Query = {
     price: () => simulator.priceObj.currentPrice,
