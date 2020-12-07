@@ -21,7 +21,7 @@ var server = http.createServer((req, res) => {
     if (req.method !== 'GET') {
         console.log(req);
     }
-    var file = path.join(dir, reqpath.replace(/\/$/, '/home.html'));
+    var file = path.join(dir, reqpath.replace(/\/$/, '/home.ejs'));
     if (file.indexOf(dir + path.sep) !== 0) {
         res.statusCode = 403;
         res.setHeader('Content-Type', 'text/plain');
