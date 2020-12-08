@@ -7,6 +7,8 @@ var session = require('express-session');
 var app = express();
 var fs = require('fs');
 var bodyParser = require('body-parser');
+const MongoClient = require("mongodb");
+const bcrypt = require("bcrypt");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -21,6 +23,9 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/views'));
 
 var ssn = "Not set";
+
+const url = 'mongodb://127.0.0.1:27017'
+const dbName = 'M7011E'
 
 app.get('/home', (req, res) => {
     if (ssn === "Not set") {
@@ -50,24 +55,43 @@ app.get('/settings', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    if (ssn === "Not set") {
-        res.render('login', {ssn: "Login"});
-    }
-    else {
-        res.render('login', {ssn: ssn.user});
-    }
+    res.render('login', {});
+});
+
+app.get('/logged_in', (req, res) => {
+    return res.end("Already logged in, logout before logging in again");
+});
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    ssn = "Not set";
+    return res.redirect('/home');
 });
 
 app.post('/login',function(req,res) {
     if (ssn === "Not set") {
-        ssn = req.session;
-        ssn.user = req.body.login;
-        ssn.password = req.body.password;
-        return res.redirect('/home');
+        MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+            if (err) return console.log(err)
+            let db = client.db(dbName)
+            let query = {name: req.body.login}
+            db.collection("users").find(query).toArray(function (err, result) {
+                if (err) return console.log(err)
+                client.close();
+                bcrypt.compare(req.body.password, result[0].password).then(function (result) {
+                    if (result) {
+                        ssn = req.session;
+                        ssn.user = req.body.login;
+                        return res.redirect('/home');
+                    }
+                    else {
+                        console.log("Failed attempt")
+                        return res.redirect('/home');
+                    }
+                });
+            });
+        });
     }
     else{
-        console.log(ssn.user);
-        return res.redirect('/home');
+        return res.redirect('/logged_in');
     }
 });
 
