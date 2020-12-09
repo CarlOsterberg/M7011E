@@ -17,12 +17,7 @@ const schema = buildSchema(`
         demand: Float!
         production: Float!
     }
-    type Simulator {
-        
-    }
 `);
-
-
 
 // The root provides a resolver function for each API endpoint
 const Query = {
