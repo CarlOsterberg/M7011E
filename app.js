@@ -33,7 +33,7 @@ app.get('/', (req, res) => {
 
 app.get('/home', (req, res) => {
     if (ssn === "Not set") {
-        res.render('home', {ssn: "Login"});
+        res.render('home',{ssn: "Login"});
     }
     else {
         res.render('home', {ssn: ssn.user});
@@ -105,8 +105,7 @@ app.post('/login',function(req,res) {
                         return res.redirect('/home');
                     }
                     else {
-                        console.log("Failed attempt")
-                        return res.redirect('/home');
+                        return res.end("Incorrect password.");
                     }
                 });
             });
