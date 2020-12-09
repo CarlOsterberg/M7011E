@@ -29,12 +29,10 @@ function APIquery(query, callback) {
 }
 
 //syncd
-APIquery( "{price\nwph}",function(q){
-    console.log(q);
-    //update database with q
-})
-
-//not syncd
-/*APIquery("{price\nwph}")*/
 
 
+setInterval(function(){
+    APIquery( "{price\nwph}",function(q){
+        console.log(q);
+    })
+}, 3000);

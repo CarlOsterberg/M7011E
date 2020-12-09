@@ -4,10 +4,6 @@ const w = require("./wind");
 const c = require("./electricity_consumption");
 
 module.exports = class Sim {
-    priceObj;
-    windObj;
-    consumptionObj;
-    productionObj;
     constructor() {
         this.windObj = new w();
         this.consumptionObj = new c();

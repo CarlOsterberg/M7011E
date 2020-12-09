@@ -4,6 +4,9 @@ var path = require('path');
 let ejs = require('ejs');
 var express = require('express');
 var session = require('express-session');
+var redis   = require("redis");
+var redisStore = require('connect-redis')(session);
+var redisClient  = redis.createClient();
 var app = express();
 var fs = require('fs');
 var bodyParser = require('body-parser');
@@ -14,15 +17,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(session({
     secret: 'wewo',
-    resave: false,
+    // create new redis store.
+    store: new redisStore({ host: 'localhost', port: 6379, client: redisClient,ttl :  260}),
     saveUninitialized: true,
-    cookie: { secure: true }
-}))
+    resave: false
+}));
 
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/views'));
-
-var ssn = "Not set";
 
 const url = 'mongodb://127.0.0.1:27017'
 const dbName = 'M7011E'
@@ -32,29 +34,29 @@ app.get('/', (req, res) => {
 });
 
 app.get('/home', (req, res) => {
-    if (ssn === "Not set") {
-        res.render('home',{ssn: "Login"});
+    if (req.session.user) {
+        res.render('home', {ssn: req.session.user});
     }
     else {
-        res.render('home', {ssn: ssn.user});
+        res.render('home',{ssn: "Login"});
     }
 });
 
 app.get('/personal', (req, res) => {
-    if (ssn === "Not set") {
-        res.render('personal', {ssn: "Login"});
+    if (req.session.user) {
+        res.render('home', {ssn: req.session.user});
     }
     else {
-        res.render('personal', {ssn: ssn.user});
+        res.render('home',{ssn: "Login"});
     }
 });
 
 app.get('/settings', (req, res) => {
-    if (ssn === "Not set") {
-        res.render('settings', {ssn: "Login"});
+    if (req.session.user) {
+        res.render('home', {ssn: req.session.user});
     }
     else {
-        res.render('settings', {ssn: ssn.user});
+        res.render('home',{ssn: "Login"});
     }
 });
 
@@ -66,9 +68,13 @@ app.get('/logged_in', (req, res) => {
     res.render('logged_in', {});
 });
 app.get('/logout', (req, res) => {
-    req.session.destroy();
-    ssn = "Not set";
-    return res.redirect('/home');
+    req.session.destroy(function(err){
+        if(err){
+            console.log(err);
+        } else {
+            return res.redirect('/home');
+        }
+    });
 });
 app.get('/createUser', (req, res) => {
     res.render('createUser', {});
@@ -87,7 +93,10 @@ app.post('/createUser',function(req,res) {
 });
 */
 app.post('/login',function(req,res) {
-    if (ssn === "Not set") {
+    if (req.session.user) {
+        return res.redirect('/logged_in');
+    }
+    else{
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
             if (err) return console.log(err)
             let db = client.db(dbName)
@@ -100,8 +109,7 @@ app.post('/login',function(req,res) {
                 }
                 bcrypt.compare(req.body.password, result[0].password).then(function (result) {
                     if (result) {
-                        ssn = req.session;
-                        ssn.user = req.body.login;
+                        req.session.user = req.body.login;
                         return res.redirect('/home');
                     }
                     else {
@@ -110,9 +118,6 @@ app.post('/login',function(req,res) {
                 });
             });
         });
-    }
-    else{
-        return res.redirect('/logged_in');
     }
 });
 

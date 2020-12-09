@@ -1,9 +1,4 @@
 module.exports = class Price {
-    demandPrice;
-    windPrice;
-    windFactor;
-    consumptionFactor;
-    currentPrice;
     constructor(consumption, wph) {
         this.windFactor = 0.2;
         this.consumptionFactor = 0.04;
