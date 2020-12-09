@@ -27,6 +27,10 @@ var ssn = "Not set";
 const url = 'mongodb://127.0.0.1:27017'
 const dbName = 'M7011E'
 
+app.get('/', (req, res) => {
+    return res.redirect('/home');
+});
+
 app.get('/home', (req, res) => {
     if (ssn === "Not set") {
         res.render('home',{ssn: "Login"});
@@ -59,14 +63,29 @@ app.get('/login', (req, res) => {
 });
 
 app.get('/logged_in', (req, res) => {
-    return res.end("Already logged in, logout before logging in again");
+    res.render('logged_in', {});
 });
 app.get('/logout', (req, res) => {
     req.session.destroy();
     ssn = "Not set";
     return res.redirect('/home');
 });
+app.get('/createUser', (req, res) => {
+    res.render('createUser', {});
+});
+/**
+app.post('/createUser',function(req,res) {
+    if (ssn === "Not set") {
+        MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+            if (err) return console.log(err)
+            let db = client.db(dbName)
+            let query = {name: req.body.createUser}
 
+    }else{
+        return res.redirect('/logged_in');
+    }
+});
+*/
 app.post('/login',function(req,res) {
     if (ssn === "Not set") {
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
