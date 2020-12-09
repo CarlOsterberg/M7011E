@@ -34,7 +34,7 @@ var app = express();
 app.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: Query,
-    graphiql: true,
+    graphiql: false,
 }));
 app.listen(4000);
 console.log('Running a GraphQL API server at http://localhost:4000/graphql');

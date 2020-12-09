@@ -29,7 +29,7 @@ const dbName = 'M7011E'
 
 app.get('/home', (req, res) => {
     if (ssn === "Not set") {
-        res.render('home', {ssn: "Login"});
+        res.render('home',{ssn: "Login"});
     }
     else {
         res.render('home', {ssn: ssn.user});
@@ -72,10 +72,13 @@ app.post('/login',function(req,res) {
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
             if (err) return console.log(err)
             let db = client.db(dbName)
-            let query = {name: req.body.login}
+            let query = {username: req.body.login}
             db.collection("users").find(query).toArray(function (err, result) {
                 if (err) return console.log(err)
                 client.close();
+                if (result.length<1) {
+                    return res.end("User not found.");
+                }
                 bcrypt.compare(req.body.password, result[0].password).then(function (result) {
                     if (result) {
                         ssn = req.session;
@@ -83,8 +86,7 @@ app.post('/login',function(req,res) {
                         return res.redirect('/home');
                     }
                     else {
-                        console.log("Failed attempt")
-                        return res.redirect('/home');
+                        return res.end("Incorrect password.");
                     }
                 });
             });
