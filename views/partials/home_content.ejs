@@ -1,0 +1,24 @@
+<div class="container" >
+    <%if (ssn !== "Login") {
+    %>
+        <h1 class="mt-5">Home</h1>
+        <p class="lead">Put a price on emotion
+            I'm looking for something to buy
+            You've got my devotion
+            But man, I can hate you sometimes
+            I don't want to fight you
+            And I don't wanna sleep in the dirt
+            We'll get the drinks in
+            So I'll get to thinking of her
+            We'll be a fine line</p>
+    <%
+    } else {
+    %>
+            <form class="form-signin" action="/login_error" method="post" class="align-content-center">
+                <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
+                <a href="login" >Log in to see your personal page</a>
+            </form>
+    <%
+    }%>
+</div>
+
