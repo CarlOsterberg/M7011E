@@ -30,7 +30,12 @@ const url = 'mongodb://127.0.0.1:27017'
 const dbName = 'M7011E'
 
 app.get('/', (req, res) => {
-    return res.redirect('/home');
+    if (req.session.user) {
+        res.render('home', {ssn: req.session.user});
+    }
+    else {
+        res.render('home',{ssn: "Login"});
+    }
 });
 
 app.get('/home', (req, res) => {
@@ -44,7 +49,10 @@ app.get('/home', (req, res) => {
 
 app.get('/personal', (req, res) => {
     if (req.session.user) {
-        res.render('personal', {ssn: req.session.user});
+        res.render('personal', {ssn: req.session.user, username: req.session.user,
+            name: req.session.name, email: req.session.email,
+            prosumer: req.session.prosumer, consumer: req.session.consumer,
+            manager: req.session.manager, admin: req.session.admin});
     }
     else {
         res.render('personal',{ssn: "Login"});
@@ -79,7 +87,6 @@ app.get('/logout', (req, res) => {
 app.get('/createUser', (req, res) => {
     res.render('createUser', {});
 });
-
 app.get('/user_created', (req, res) => {
     res.render('user_created', {});
 });
@@ -94,6 +101,7 @@ app.post('/createUser',function(req,res) {
     if (!req.session.user) {
         let consumer = 0
         let manager = 0
+        let prosumer = 0
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
             if (err) return console.log(err)
             let db = client.db(dbName)
@@ -103,18 +111,25 @@ app.post('/createUser',function(req,res) {
                 if(!result.length) {
                     bcrypt.genSalt(10, function (err, salt) {
                         bcrypt.hash(req.body.password, salt, function (err, hash) {
-                            if(req.body.role === "consumer") {
+                            if(req.body.role === "Consumer") {
                                 consumer = 1
                                 manager = 0
+                                prosumer = 0
+                            } else if (req.body.role === "Prosumer") {
+                                consumer = 0
+                                manager = 0
+                                prosumer = 1
                             } else {
                                 consumer = 0
                                 manager = 1
+                                prosumer = 0
                             }
                             let user = { name: req.body.name,
                                 username: req.body.username,
                                 password: hash,
                                 email: req.body.email,
-                                producer: manager,
+                                manager: manager,
+                                prosumer: prosumer,
                                 consumer: consumer,
                                 admin: 0
                             };
@@ -155,9 +170,17 @@ app.post('/login',function(req,res) {
                 if (result.length<1) {
                     return res.redirect('/login_error');
                 }
-                bcrypt.compare(req.body.password, result[0].password).then(function (result) {
-                    if (result) {
+                bcrypt.compare(req.body.password, result[0].password).then(function (result2) {
+                    if (result2) {
+                        console.log(result)
                         req.session.user = req.body.login;
+                        req.session.email = result[0].email;
+                        req.session.name = result[0].name;
+                        req.session.prosumer = result[0].prosumer;
+                        req.session.consumer = result[0].consumer;
+                        req.session.manager = result[0].manager;
+                        req.session.admin = result[0].admin;
+
                         return res.redirect('/home');
                     }
                     else {
