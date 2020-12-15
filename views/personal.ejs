@@ -59,14 +59,56 @@
                     </svg></a>
                 </li>
             </ul>
-            <%- include('partials/login_button') %>
+            <a class="navbar-text"
+            <%if (ssn !== "Login") {
+            %>
+               href="logout"
+               onmouseover="this.innerHTML='Logout';"
+               onmouseout="this.innerHTML='<%= ssn %>';"
+            <%
+            } else {
+            %>
+               href="login"
+                    <%
+                    }%>
+               tabindex="-1"><%= ssn %></a>
         </div>
     </nav>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="flex-shrink-0">
-    <%- include('partials/personal_content') %>
+    <div class="container">
+        <%if (ssn !== "Login") {
+        %>
+            <img src="https://i.pinimg.com/originals/36/56/cd/3656cdb792d0600a3d7d454fa7f6234a.png" alt="harry" style="width:25%" class="img-responsive center-block d-block mx-auto">
+            <h1 class="text-center">My Account</h1>
+            <h4 class="text-center">Name: <%= name %></h4>
+            <h4 class="text-center">Username: <%= username %></h4>
+            <h4 class="text-center">Email: <%= email %></h4>
+            <h4 class="text-center"><%
+                    let role = "";
+                    if (manager === 1) {
+                        role = "Manager"
+                    } else if(consumer === 1) {
+                        role = "Consumer"
+                    } else if(prosumer === 1) {
+                        role = "Prosumer"
+                    } else {
+                        role = "Admin"
+                    }
+                %> Role: <%- role %>
+            </h4>
+        <%
+        } else {
+        %>
+            <form class="form-signin" action="/login_error" method="post" class="align-content-center">
+                <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
+                <a href="login" >Log in to see your user information</a>
+            </form>
+        <%
+        }%>
+    </div>
 </main>
 
 <script src="site_files/jquery-3.5.1.slim.min.js.nedladdning" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

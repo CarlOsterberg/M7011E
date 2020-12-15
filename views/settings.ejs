@@ -59,14 +59,33 @@
                     </svg></a>
                 </li>
             </ul>
-            <%- include('partials/login_button') %>
+            <a class="navbar-text"
+            <%if (ssn !== "Login") {
+            %>
+               href="logout"
+               onmouseover="this.innerHTML='Logout';"
+               onmouseout="this.innerHTML='<%= ssn %>';"
+            <%
+            } else {
+            %>
+               href="login"
+                    <%
+                    }%>
+               tabindex="-1"><%= ssn %></a>
         </div>
     </nav>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="flex-shrink-0">
-    <%- include('partials/settings_content') %>
+    <div class="container">
+        <h1 class="mt-5">Settings</h1>
+        <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam cursus luctus mauris et laoreet.
+            Proin ultricies fringilla consectetur. Cras nec elementum ipsum, et vehicula magna. Etiam eget ante tortor.
+            Nullam mauris est, sollicitudin id eleifend eget, interdum non urna.
+            Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.
+            Maecenas nunc ligula, laoreet in pretium vel, varius a est. Duis semper massa ut augue euismod, ut sollicitudin nisi convallis.</p>
+    </div>
 </main>
 
 
