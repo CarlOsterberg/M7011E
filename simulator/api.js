@@ -14,8 +14,8 @@ const schema = buildSchema(`
         price: Float!
         wph: Float!
         wpd: Float!
-        demand: Float!
         production: Float!
+        demand(numUsers: Int!): [Float!]!
     }
 `);
 
@@ -24,7 +24,14 @@ const Query = {
     price: () => simulator.priceObj.currentPrice,
     wph: () => simulator.windObj.avgWindHour,
     wpd: () => simulator.windObj.avgWindDay,
-    demand: () => simulator.consumptionObj.consumption,
+    demand: ({numUsers}) => {
+        let vals = [];
+        for (let i = 0;i<numUsers;i++){
+            simulator.consumptionObj.generateAvgConsumption();
+            vals.push(simulator.consumptionObj.consumption);
+        }
+        return vals;
+    },
     production: () => simulator.productionObj.prod,
 }
 
@@ -34,5 +41,5 @@ app.use('/graphql', graphqlHTTP({
     rootValue: Query,
     graphiql: false,
 }));
-app.listen(4000);
-console.log('Running a GraphQL API server at http://localhost:4000/graphql');
+app.listen(8080);
+console.log('Running a GraphQL API server at http://localhost:8080/graphql');
