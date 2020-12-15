@@ -1,5 +1,4 @@
 module.exports = class Production {
-    prod;
     //avg_consumption 55 kWh
     constructor(wph) {
         this.generateAvgProduction(wph);

@@ -28,13 +28,12 @@ function APIquery(query, callback) {
     post_req.end();
 }
 
-//syncd
-APIquery( "{price\nwph}",function(q){
-    console.log(q);
-    //update database with q
-})
-
-//not syncd
-/*APIquery("{price\nwph}")*/
-
-
+setInterval(function(){
+    APIquery( "{price\nwph}",function(q){
+        let d = JSON.parse(q);
+        for (x in d.data) {
+            console.log(x + " : " + d.data[x])
+        }
+        //Update db with APIquery data.
+    })
+}, 3000);
