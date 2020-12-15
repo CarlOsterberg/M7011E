@@ -15,6 +15,7 @@
 
     <!-- Favicons -->
 
+
     <style>
       .bd-placeholder-img {
         font-size: 1.125rem;
@@ -58,49 +59,14 @@
           </svg></a>
         </li>
       </ul>
-        <a class="navbar-text"
-        <%if (ssn !== "Login") {
-        %>
-           href="logout"
-           onmouseover="this.innerHTML='Logout';"
-           onmouseout="this.innerHTML='<%= ssn %>';"
-        <%
-        } else {
-        %>
-           href="login"
-                <%
-                }%>
-           tabindex="-1"><%= ssn %></a>
+        <%- include('partials/login_button') %>
     </div>
   </nav>
 </header>
 
 <!-- Begin page content -->
 <main role="main" class="flex-shrink-0">
-    <div class="container" >
-        <%if (ssn !== "Login") {
-        %>
-            <h1 class="mt-5">Home</h1>
-            <p class="lead">Put a price on emotion
-                I'm looking for something to buy
-                You've got my devotion
-                But man, I can hate you sometimes
-                I don't want to fight you
-                And I don't wanna sleep in the dirt
-                We'll get the drinks in
-                So I'll get to thinking of her
-                We'll be a fine line</p>
-        <%
-        } else {
-        %>
-            <form class="form-signin" action="/login_error" method="post" class="align-content-center">
-                <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
-                <a href="login" >Log in to see your personal page</a>
-            </form>
-        <%
-        }%>
-    </div>
-
+    <%- include('partials/home_content') %>
 </main>
 
 <script src="site_files/jquery-3.5.1.slim.min.js.nedladdning" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
