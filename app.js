@@ -79,6 +79,9 @@ app.get('/user_created', (req, res) => {
 app.get('/user_exists', (req, res) => {
     res.render('user_exists', {});
 });
+app.get('/login_error', (req, res) => {
+    res.render('login_error', {});
+});
 
 app.post('/createUser',function(req,res) {
     if (ssn === "Not set") {
@@ -138,7 +141,7 @@ app.post('/login',function(req,res) {
                 if (err) return console.log(err)
                 client.close();
                 if (result.length<1) {
-                    return res.end("User not found.");
+                    return res.redirect('/login_error');
                 }
                 bcrypt.compare(req.body.password, result[0].password).then(function (result) {
                     if (result) {
@@ -147,7 +150,7 @@ app.post('/login',function(req,res) {
                         return res.redirect('/home');
                     }
                     else {
-                        return res.end("Incorrect password.");
+                        return res.redirect('/login_error');
                     }
                 });
             });
