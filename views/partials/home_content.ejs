@@ -1,23 +1,43 @@
 <div class="container" >
     <%if (ssn !== "Login") {
     %>
-        <h1 class="mt-5">Home</h1>
-        <p class="lead">Put a price on emotion
-            I'm looking for something to buy
-            You've got my devotion
-            But man, I can hate you sometimes
-            I don't want to fight you
-            And I don't wanna sleep in the dirt
-            We'll get the drinks in
-            So I'll get to thinking of her
-            We'll be a fine line</p>
+            <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+                <div class="container">
+                    <div class="class=text-center" style="float: left; overflow: hidden;">
+                        <h1 class="mt-5">Your Home Overview</h1>
+                        <h4 class="text-center">Wind: 4 m/s</h4>
+                        <h4 class="text-center">Production: 60 kWh</h4>
+                        <h4 class="text-center">Consumption: 52 kWh</h4>
+                        <h4 class="text-center">Netto production: 8 kWh</h4>
+                        <h4 class="text-center">Battery: 107 kWh</h4>
+                        <h4 class="text-center">Price per kWh: 1,27 kr</h4>
+                    </div>
+                    <div class="float-child" style="float: right; overflow: hidden;">
+                        <body class="text-center">
+                        <form class="form-signin" action="/battery" method="post">
+                            <h1 class="mt-5">Adjust battery</h1>
+                            <h5 class="mt-5">Use of battery %</h5>
+                            <input type="range" class="form-control-range">
+                            <h5 class="mt-5">Storage of battery %</h5>
+                            <input type="range" class="form-control-range">
+
+                            <button class="btn btn-lg btn-dark btn-block" type="submit">Adjust</button>
+                        </form>
+                        </body>
+                    </div>
+                </div>
+            </body>
+
     <%
     } else {
     %>
+            <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+            <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
             <form class="form-signin" action="/login_error" method="post" class="align-content-center">
                 <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
-                <a href="login" >Log in to see your personal page</a>
+                <a href="login" >Log in to see your home page</a>
             </form>
+            </body>
     <%
     }%>
 </div>

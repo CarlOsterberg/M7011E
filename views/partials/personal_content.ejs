@@ -1,7 +1,7 @@
 <div class="container">
     <%if (ssn !== "Login") {
     %>
-        <img src="https://i.pinimg.com/originals/36/56/cd/3656cdb792d0600a3d7d454fa7f6234a.png" alt="harry" style="width:25%" class="img-responsive center-block d-block mx-auto">
+        <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg');">
         <h1 class="text-center">My Account</h1>
         <h4 class="text-center">Name: <%= name %></h4>
         <h4 class="text-center">Username: <%= username %></h4>
@@ -19,13 +19,17 @@
                 }
             %> Role: <%- role %>
         </h4>
+        </body>
     <%
     } else {
     %>
-        <form class="form-signin" action="/login_error" method="post" class="align-content-center">
-            <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
-            <a href="login" >Log in to see your user information</a>
-        </form>
+                    <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+                    <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
+                    <form class="form-signin" action="/login_error" method="post" class="align-content-center">
+                            <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
+                            <a href="login" >Log in to see your personal page</a>
+                    </form>
+                    </body>
     <%
     }%>
 </div>
