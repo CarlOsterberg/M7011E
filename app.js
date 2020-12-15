@@ -44,19 +44,19 @@ app.get('/home', (req, res) => {
 
 app.get('/personal', (req, res) => {
     if (req.session.user) {
-        res.render('home', {ssn: req.session.user});
+        res.render('personal', {ssn: req.session.user});
     }
     else {
-        res.render('home',{ssn: "Login"});
+        res.render('personal',{ssn: "Login"});
     }
 });
 
 app.get('/settings', (req, res) => {
     if (req.session.user) {
-        res.render('home', {ssn: req.session.user});
+        res.render('settings', {ssn: req.session.user});
     }
     else {
-        res.render('home',{ssn: "Login"});
+        res.render('settings',{ssn: "Login"});
     }
 });
 
@@ -79,19 +79,6 @@ app.get('/logout', (req, res) => {
 app.get('/createUser', (req, res) => {
     res.render('createUser', {});
 });
-/**
-app.post('/createUser',function(req,res) {
-    if (ssn === "Not set") {
-        MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
-            if (err) return console.log(err)
-            let db = client.db(dbName)
-            let query = {name: req.body.createUser}
-
-    }else{
-        return res.redirect('/logged_in');
-    }
-});
-*/
 app.post('/login',function(req,res) {
     if (req.session.user) {
         return res.redirect('/logged_in');
