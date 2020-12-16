@@ -49,7 +49,7 @@ setInterval(function(){
                 let q_d = d.data["demand"];
                 for (let i = 0;i<result.length;i++) {
                     //console.log({_id:result[i]._id}, {$set: {"kWh": q_d[j]} })
-                    db.collection("consumers").updateOne({_id:result[i]._id}, {$set: {"kWh": q_d[i]} })
+                    db.collection("consumers").updateOne({_id:result[i]._id}, {$set: {"consumption": q_d[i]} })
                 }
             });
         });
