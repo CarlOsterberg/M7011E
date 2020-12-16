@@ -27,28 +27,74 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/views'));
 
-
 const url = 'mongodb://127.0.0.1:27017'
 const dbName = 'M7011E'
 
+let wind = 0;
+
+function updateDisplayVals(req,callback) {
+    MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+        if (err) return console.log(err)
+        let db = client.db(dbName)
+        let role = ""
+        switch (req.session.role) {
+            case "Consumer":
+                role = "consumers"
+                break;
+            case "Prosumer":
+                role = "prosumers"
+                break;
+            case "Manager":
+                role = "managers"
+                break;
+            default:
+                console.log("Something went wrong")
+        }
+        db.collection("wind").find({_id:"wind"}).toArray(function (err, windRes) {
+            if (err) return console.log(err)
+            if (windRes) {
+                wind = windRes[0].speed
+            }
+            db.collection(role).find({_id:req.session.user}).toArray(function (err,result) {
+                if (err) return console.log(err)
+                if (result) {
+                    req.session.consumption = result[0].consumption
+                    if (role !== "consumers") {
+                        req.session.production = result[0].production
+                        req.session.battery = result[0].battery
+                        req.session.battery_use = result[0].battery_use
+                        req.session.battery_sell = result[0].battery_sell
+                    }
+                    client.close();
+                    callback(true);
+                }
+                else {
+                    client.close()
+                    callback(false);
+                }
+            });
+        });
+    });
+
+}
+
 app.get('/', (req, res) => {
-    if (req.session.user) {
-        res.render('home', {ssn: req.session.user, username: req.session.user,
-            name: req.session.name, email: req.session.email, role: req.session.role,
-            consumption: req.session.consumption, production: req.session.production,
-            battery: req.session.battery});
-    }
-    else {
-        res.render('home',{ssn: "Login"});
-    }
+    return res.redirect('/home');
 });
 
 app.get('/home', (req, res) => {
     if (req.session.user) {
-        res.render('home', {ssn: req.session.user, username: req.session.user,
-            name: req.session.name, email: req.session.email, role: req.session.role,
-            consumption: req.session.consumption, production: req.session.production,
-            battery: req.session.battery});
+        updateDisplayVals(req, function (status) {
+            if (status) {
+                res.render('home', {ssn: req.session.user, username: req.session.user,
+                    name: req.session.name, email: req.session.email, role: req.session.role,
+                    consumption: req.session.consumption, windSpeed : wind, production: req.session.production,battery: req.session.battery
+                    ,battery_use: req.session.battery_use,battery_sell: req.session.battery_sell});
+            }
+            else {
+                console.log("Something went wrong")
+            }
+        });
     }
     else {
         res.render('home',{ssn: "Login"});
@@ -83,7 +129,6 @@ app.get('/login', (req, res) => {
 app.get('/logged_in', (req, res) => {
     res.render('logged_in', {});
 });
-
 app.get('/logout', (req, res) => {
     req.session.destroy(function(err){
         if(err){
@@ -93,25 +138,24 @@ app.get('/logout', (req, res) => {
         }
     });
 });
-
 app.get('/createUser', (req, res) => {
     res.render('createUser', {});
 });
-
 app.get('/user_created', (req, res) => {
     res.render('user_created', {});
 });
-
 app.get('/user_exists', (req, res) => {
     res.render('user_exists', {});
 });
-
 app.get('/login_error', (req, res) => {
     res.render('login_error', {});
 });
 
 app.post('/createUser',function(req,res) {
     if (!req.session.user) {
+        let consumer = 0
+        let manager = 0
+        let prosumer = 0
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
             if (err) return console.log(err)
             let db = client.db(dbName)
@@ -134,7 +178,6 @@ app.post('/createUser',function(req,res) {
                                 email: req.body.email,
                                 role: roles
                             }
-                            console.log(user)
                             db.collection("users").insertOne(user,function (err, result) {
                                 if(err){
                                     return console.log(err)
@@ -144,7 +187,6 @@ app.post('/createUser',function(req,res) {
                                             _id: req.body.username,
                                             consumption: 0
                                         }
-                                        console.log(consumers)
                                         db.collection("consumers").insertOne(consumers, function (err, result) {
                                             if (err) {
                                                 console.log(err);

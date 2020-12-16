@@ -12,6 +12,7 @@
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
             <div class="container">
+                <h4 class="text-center">Wind: <%- windSpeed %> m/s</h4>
                 <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
                 <h4 class="text-center">Price per kWh: 1,27 kr</h4>
             </div>
@@ -22,7 +23,7 @@
                 <div class="container">
                     <div class="class=text-center" style="float: left; overflow: hidden;">
                         <h1 class="mt-5">Your Home Overview</h1>
-                        <h4 class="text-center">Wind: 4 m/s</h4>
+                        <h4 class="text-center">Wind: <%- windSpeed %> m/s</h4>
                         <h4 class="text-center">Production: <%- production %> kWh</h4>
                         <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
                         <h4 class="text-center">Netto production: <%- production - consumption %> kWh</h4>
@@ -57,7 +58,7 @@
                 <div class="container">
                     <div class="class=text-center" style="float: left; overflow: hidden;">
                         <h1 class="mt-5">Your Home Overview</h1>
-                        <h4 class="text-center">Wind: 4 m/s</h4>
+                        <h4 class="text-center">Wind: <%- windSpeed %> m/s</h4>
                         <h4 class="text-center">Production: <%- production %> kWh</h4>
                         <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
                         <h4 class="text-center">Netto production: <%- production - consumption %> kWh</h4>
