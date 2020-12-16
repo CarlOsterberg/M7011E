@@ -4,9 +4,9 @@ var path = require('path');
 let ejs = require('ejs');
 var express = require('express');
 var session = require('express-session');
-var redis   = require("redis");
-var redisStore = require('connect-redis')(session);
-var redisClient  = redis.createClient();
+//var redis   = require("redis");
+//var redisStore = require('connect-redis')(session);
+//var redisClient  = redis.createClient();
 var app = express();
 var fs = require('fs');
 var bodyParser = require('body-parser');
@@ -15,21 +15,24 @@ const bcrypt = require("bcrypt");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(session({
+/*app.use(session({
     secret: 'wewo',
     // create new redis store.
     store: new redisStore({ host: 'localhost', port: 6379, client: redisClient,ttl :  260}),
     saveUninitialized: true,
     resave: false
-}));
+}));*/
 
-app.set('view engine', 'ejs');
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jsx');
+app.engine('jsx', require('express-react-views').createEngine());
 app.use(express.static(__dirname + '/views'));
+
 
 const url = 'mongodb://127.0.0.1:27017'
 const dbName = 'M7011E'
 
-app.get('/', (req, res) => {
+/*app.get('/', (req, res) => {
     if (req.session.user) {
         res.render('home', {ssn: req.session.user, username: req.session.user,
             name: req.session.name, email: req.session.email, role: req.session.role,
@@ -38,7 +41,9 @@ app.get('/', (req, res) => {
     else {
         res.render('home',{ssn: "Login"});
     }
-});
+});*/
+
+app.get('/', require('./routes/home').home);
 
 app.get('/home', (req, res) => {
     if (req.session.user) {
@@ -225,5 +230,5 @@ app.post('/login',function(req,res) {
 });
 
 app.listen(3000, function () {
-    console.log('Listening on http://localhost:3000/home');
+    console.log('Listening on http://localhost:3000');
 });
