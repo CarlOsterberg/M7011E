@@ -35,7 +35,8 @@ app.get('/', (req, res) => {
     if (req.session.user) {
         res.render('home', {ssn: req.session.user, username: req.session.user,
             name: req.session.name, email: req.session.email, role: req.session.role,
-            consumption: req.session.consumption});
+            consumption: req.session.consumption, production: req.session.production,
+            battery: req.session.battery});
     }
     else {
         res.render('home',{ssn: "Login"});
@@ -46,7 +47,8 @@ app.get('/home', (req, res) => {
     if (req.session.user) {
         res.render('home', {ssn: req.session.user, username: req.session.user,
             name: req.session.name, email: req.session.email, role: req.session.role,
-            consumption: req.session.consumption});
+            consumption: req.session.consumption, production: req.session.production,
+            battery: req.session.battery});
     }
     else {
         res.render('home',{ssn: "Login"});
@@ -54,6 +56,7 @@ app.get('/home', (req, res) => {
 });
 
 app.get('/personal', (req, res) => {
+
     if (req.session.user) {
         res.render('personal', {ssn: req.session.user, username: req.session.user,
             name: req.session.name, email: req.session.email, role: req.session.role,
@@ -80,6 +83,7 @@ app.get('/login', (req, res) => {
 app.get('/logged_in', (req, res) => {
     res.render('logged_in', {});
 });
+
 app.get('/logout', (req, res) => {
     req.session.destroy(function(err){
         if(err){
@@ -89,24 +93,25 @@ app.get('/logout', (req, res) => {
         }
     });
 });
+
 app.get('/createUser', (req, res) => {
     res.render('createUser', {});
 });
+
 app.get('/user_created', (req, res) => {
     res.render('user_created', {});
 });
+
 app.get('/user_exists', (req, res) => {
     res.render('user_exists', {});
 });
+
 app.get('/login_error', (req, res) => {
     res.render('login_error', {});
 });
 
 app.post('/createUser',function(req,res) {
     if (!req.session.user) {
-        let consumer = 0
-        let manager = 0
-        let prosumer = 0
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
             if (err) return console.log(err)
             let db = client.db(dbName)
@@ -134,17 +139,54 @@ app.post('/createUser',function(req,res) {
                                 if(err){
                                     return console.log(err)
                                 } else {
-                                    if(req.body.role === "Consumer"){
+                                    if(req.body.role === "Consumer") {
                                         let consumers = {
                                             _id: req.body.username,
-                                            kWh: 0
+                                            consumption: 0
                                         }
                                         console.log(consumers)
-                                        db.collection("consumers").insertOne(consumers,function (err, result) {
+                                        db.collection("consumers").insertOne(consumers, function (err, result) {
+                                            if (err) {
+                                                console.log(err);
+                                            } else {
+                                                client.close();
+                                                return res.redirect('/user_created');
+                                            }
+                                        });
+                                    }else if(req.body.role === "Prosumer") {
+                                        let prosumers = {
+                                            _id: req.body.username,
+                                            consumption: 0,
+                                            production: 0,
+                                            battery: 0,
+                                            battery_use: 0,
+                                            battery_sell: 0
+                                        }
+                                        db.collection("prosumers").insertOne(prosumers,function (err, result) {
                                             if(err) {
                                                 console.log(err);
                                             }
                                             else {
+                                                client.close();
+                                                return res.redirect('/user_created');
+                                            }
+                                        });
+
+                                    }else if(req.body.role === "Manager") {
+                                        let managers = {
+                                            _id: req.body.username,
+                                            consumption: 0,
+                                            production: 0,
+                                            battery: 0,
+                                            battery_use: 0,
+                                            battery_sell: 0
+                                        }
+                                        db.collection("managers").insertOne(managers,function (err, result) {
+                                            if(err) {
+                                                console.log(err);
+                                            }
+                                            else {
+                                                client.close();
                                                 return res.redirect('/user_created');
                                             }
                                         });
@@ -166,7 +208,6 @@ app.post('/createUser',function(req,res) {
     }
 });
 
-
 app.post('/login',function(req,res) {
     if (req.session.user) {
         return res.redirect('/logged_in');
@@ -187,31 +228,51 @@ app.post('/login',function(req,res) {
                         req.session.email = result[0].email;
                         req.session.name = result[0].name;
                         if(result[0].role === "Prosumer") {
-                            req.session.role = "Prosumer";
-                            req.session.consumption = 58;
-                            client.close();
-                            return res.redirect('/home');
+                            let query2 = {_id: req.session.user}
+                            db.collection("prosumers").find(query2).toArray(function (err, result3) {
+                                if(result3) {
+                                    req.session.role = "Prosumer";
+                                    req.session.consumption = result3[0].consumption;
+                                    req.session.production =  result3[0].production;
+                                    req.session.battery =  result3[0].battery;
+                                    req.session.battery_sell =  result3[0].battery_sell;
+                                    req.session.battery_use =  result3[0].battery_use;
+                                    client.close();
+                                    return res.redirect('/home');
+                                } else {
+                                    console.log("cant find prosumer db");
+                                }
+                            });
                         } else if (result[0].role === "Consumer") {
                             let query2 = {_id: req.session.user}
                             db.collection("consumers").find(query2).toArray(function (err, result3) {
                                 if(result3) {
                                     req.session.role = "Consumer";
-                                    console.log(result3[0].kWh)
-                                    req.session.consumption = result3[0].kWh;
+                                    req.session.consumption = result3[0].consumption;
                                     client.close();
                                     return res.redirect('/home');
                                 } else {
-                                    console.log("cant find consumption db");
+                                    console.log("cant find consumer db");
                                 }
                             });
                         } else if (result[0].role === "Manager") {
-                            req.session.role = "Manager";
-                            req.session.consumption = 56;
-                            client.close();
-                            return res.redirect('/home');
+                            let query2 = {_id: req.session.user}
+                            db.collection("managers").find(query2).toArray(function (err, result3) {
+                                if(result3) {
+                                    req.session.role = "Manager";
+                                    req.session.consumption = result3[0].consumption;
+                                    req.session.production =  result3[0].production;
+                                    req.session.battery =  result3[0].battery;
+                                    req.session.battery_sell =  result3[0].battery_sell;
+                                    req.session.battery_use =  result3[0].battery_use;
+                                    client.close();
+                                    return res.redirect('/home');
+                                } else {
+                                    console.log("cant find prosumer db");
+                                }
+                            });
                         } else {
                             req.session.role = "Admin";
-                            req.session.consumption = 57;
                             client.close();
                             return res.redirect('/home');
                         };
