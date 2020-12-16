@@ -33,7 +33,9 @@ const dbName = 'M7011E'
 
 app.get('/', (req, res) => {
     if (req.session.user) {
-        res.render('home', {ssn: req.session.user});
+        res.render('home', {ssn: req.session.user, username: req.session.user,
+            name: req.session.name, email: req.session.email, role: req.session.role,
+            consumption: req.session.consumption});
     }
     else {
         res.render('home',{ssn: "Login"});
@@ -42,7 +44,9 @@ app.get('/', (req, res) => {
 
 app.get('/home', (req, res) => {
     if (req.session.user) {
-        res.render('home', {ssn: req.session.user});
+        res.render('home', {ssn: req.session.user, username: req.session.user,
+            name: req.session.name, email: req.session.email, role: req.session.role,
+            consumption: req.session.consumption});
     }
     else {
         res.render('home',{ssn: "Login"});
@@ -52,9 +56,8 @@ app.get('/home', (req, res) => {
 app.get('/personal', (req, res) => {
     if (req.session.user) {
         res.render('personal', {ssn: req.session.user, username: req.session.user,
-            name: req.session.name, email: req.session.email,
-            prosumer: req.session.prosumer, consumer: req.session.consumer,
-            manager: req.session.manager, admin: req.session.admin});
+            name: req.session.name, email: req.session.email, role: req.session.role,
+            consumption: req.session.consumption});
     }
     else {
         res.render('personal',{ssn: "Login"});
@@ -114,32 +117,40 @@ app.post('/createUser',function(req,res) {
                     bcrypt.genSalt(10, function (err, salt) {
                         bcrypt.hash(req.body.password, salt, function (err, hash) {
                             if(req.body.role === "Consumer") {
-                                consumer = 1
-                                manager = 0
-                                prosumer = 0
+                                roles = "Consumer"
                             } else if (req.body.role === "Prosumer") {
-                                consumer = 0
-                                manager = 0
-                                prosumer = 1
+                                roles = "Prosumer"
                             } else {
-                                consumer = 0
-                                manager = 1
-                                prosumer = 0
+                                roles = "Manager"
                             }
                             let user = { name: req.body.name,
                                 username: req.body.username,
                                 password: hash,
                                 email: req.body.email,
-                                manager: manager,
-                                prosumer: prosumer,
-                                consumer: consumer,
-                                admin: 0
-                            };
+                                role: roles
+                            }
+                            console.log(user)
                             db.collection("users").insertOne(user,function (err, result) {
                                 if(err){
                                     return console.log(err)
                                 } else {
-                                    return res.redirect('/user_created');
+                                    if(req.body.role === "Consumer"){
+                                        let consumers = {
+                                            _id: req.body.username,
+                                            kWh: 0
+                                        }
+                                        console.log(consumers)
+                                        db.collection("consumers").insertOne(consumers,function (err, result) {
+                                            if(err) {
+                                                console.log(err);
+                                            }
+                                            else {
+                                                return res.redirect('/user_created');
+                                            }
+                                        });
+                                    } else {
+                                        return res.redirect('/user_created');
+                                    }
                                 }
                             });
                         });
@@ -161,31 +172,52 @@ app.post('/login',function(req,res) {
         return res.redirect('/logged_in');
     }
     else{
-
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
             if (err) return console.log(err)
             let db = client.db(dbName)
             let query = {username: req.body.login}
             db.collection("users").find(query).toArray(function (err, result) {
                 if (err) return console.log(err)
-                client.close();
                 if (result.length<1) {
                     return res.redirect('/login_error');
                 }
                 bcrypt.compare(req.body.password, result[0].password).then(function (result2) {
                     if (result2) {
-                        console.log(result)
                         req.session.user = req.body.login;
                         req.session.email = result[0].email;
                         req.session.name = result[0].name;
-                        req.session.prosumer = result[0].prosumer;
-                        req.session.consumer = result[0].consumer;
-                        req.session.manager = result[0].manager;
-                        req.session.admin = result[0].admin;
-
-                        return res.redirect('/home');
+                        if(result[0].role === "Prosumer") {
+                            req.session.role = "Prosumer";
+                            req.session.consumption = 58;
+                            client.close();
+                            return res.redirect('/home');
+                        } else if (result[0].role === "Consumer") {
+                            let query2 = {_id: req.session.user}
+                            db.collection("consumers").find(query2).toArray(function (err, result3) {
+                                if(result3) {
+                                    req.session.role = "Consumer";
+                                    console.log(result3[0].kWh)
+                                    req.session.consumption = result3[0].kWh;
+                                    client.close();
+                                    return res.redirect('/home');
+                                } else {
+                                    console.log("cant find consumption db");
+                                }
+                            });
+                        } else if (result[0].role === "Manager") {
+                            req.session.role = "Manager";
+                            req.session.consumption = 56;
+                            client.close();
+                            return res.redirect('/home');
+                        } else {
+                            req.session.role = "Admin";
+                            req.session.consumption = 57;
+                            client.close();
+                            return res.redirect('/home');
+                        };
                     }
                     else {
+                        client.close();
                         return res.redirect('/login_error');
                     }
                 });
