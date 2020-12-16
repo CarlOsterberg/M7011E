@@ -1,5 +1,22 @@
 <div class="container" >
-    <%if (ssn !== "Login") {
+    <%if (ssn == "Login") {
+    %>
+        <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+        <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
+        <form class="form-signin" action="/login_error" method="post" class="align-content-center">
+            <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
+            <a href="login" >Log in to see your home page</a>
+        </form>
+        </body>
+    <%} else if (ssn !== "Login" && role === "Consumer") {
+    %>
+            <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+            <div class="container">
+                <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
+                <h4 class="text-center">Price per kWh: 1,27 kr</h4>
+            </div>
+            </body>
+    <%} else if (ssn !== "Login" && role === "Manager") {
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
                 <div class="container">
@@ -7,36 +24,59 @@
                         <h1 class="mt-5">Your Home Overview</h1>
                         <h4 class="text-center">Wind: 4 m/s</h4>
                         <h4 class="text-center">Production: 60 kWh</h4>
-                        <h4 class="text-center">Consumption: 52 kWh</h4>
+                        <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
                         <h4 class="text-center">Netto production: 8 kWh</h4>
                         <h4 class="text-center">Battery: 107 kWh</h4>
                         <h4 class="text-center">Price per kWh: 1,27 kr</h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
                         <body class="text-center">
-                        <form class="form-signin" action="/battery" method="post">
-                            <h1 class="mt-5">Adjust battery</h1>
-                            <h5 class="mt-5">Use of battery %</h5>
-                            <input type="range" class="form-control-range">
-                            <h5 class="mt-5">Storage of battery %</h5>
-                            <input type="range" class="form-control-range">
+                            <form class="form-signin" action="/battery" method="post">
+                                <h1 class="mt-5">Adjust battery</h1>
+                                <h5 class="mt-5">Use of battery %</h5>
+                                <input type="range" class="form-control-range">
+                                    <h5 class="mt-5">Storage of battery %</h5>
+                                    <input type="range" class="form-control-range">
 
-                            <button class="btn btn-lg btn-dark btn-block" type="submit">Adjust</button>
-                        </form>
+                                        <button class="btn btn-lg btn-dark btn-block" type="submit">Adjust</button>
+                            </form>
                         </body>
                     </div>
                 </div>
             </body>
-
-    <%
-    } else {
+    <%} else if (ssn !== "Login" && role === "Admin") {
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
-            <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
-            <form class="form-signin" action="/login_error" method="post" class="align-content-center">
-                <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
-                <a href="login" >Log in to see your home page</a>
-            </form>
+            <h1 class="mt-5">KOM IGEN NU BRITT MARIE KÖR FÖR FA A N</h1>
+            </body>
+    <%
+    } else if (ssn !== "Login" && role === "Prosumer") {
+    %>
+            <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+                <div class="container">
+                    <div class="class=text-center" style="float: left; overflow: hidden;">
+                        <h1 class="mt-5">Your Home Overview</h1>
+                        <h4 class="text-center">Wind: 4 m/s</h4>
+                        <h4 class="text-center">Production: 60 kWh</h4>
+                        <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
+                        <h4 class="text-center">Netto production: 8 kWh</h4>
+                        <h4 class="text-center">Battery: 107 kWh</h4>
+                        <h4 class="text-center">Price per kWh: 1,27 kr</h4>
+                    </div>
+                    <div class="float-child" style="float: right; overflow: hidden;">
+                        <body class="text-center">
+                            <form class="form-signin" action="/battery" method="post">
+                                <h1 class="mt-5">Adjust battery</h1>
+                                <h5 class="mt-5">Use of battery %</h5>
+                                <input type="range" class="form-control-range">
+                                <h5 class="mt-5">Storage of battery %</h5>
+                                <input type="range" class="form-control-range">
+
+                                <button class="btn btn-lg btn-dark btn-block" type="submit">Adjust</button>
+                            </form>
+                        </body>
+                    </div>
+                </div>
             </body>
     <%
     }%>

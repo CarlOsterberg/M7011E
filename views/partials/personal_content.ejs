@@ -6,19 +6,7 @@
         <h4 class="text-center">Name: <%= name %></h4>
         <h4 class="text-center">Username: <%= username %></h4>
         <h4 class="text-center">Email: <%= email %></h4>
-        <h4 class="text-center"><%
-                let role = "";
-                if (manager === 1) {
-                    role = "Manager"
-                } else if(consumer === 1) {
-                    role = "Consumer"
-                } else if(prosumer === 1) {
-                    role = "Prosumer"
-                } else {
-                    role = "Admin"
-                }
-            %> Role: <%- role %>
-        </h4>
+        <h4 class="text-center">Role: <%= role %></h4>
         </body>
     <%
     } else {
