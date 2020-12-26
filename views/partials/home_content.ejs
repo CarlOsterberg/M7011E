@@ -1,5 +1,5 @@
 <div class="container" >
-    <%if (ssn == "Login") {
+    <%if (ssn.user == "Login") {
     %>
         <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
         <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
@@ -8,27 +8,27 @@
             <a href="login" >Log in to see your home page</a>
         </form>
         </body>
-    <%} else if (ssn !== "Login" && role === "Consumer") {
+    <%} else if (ssn.user !== "Login" && ssn.role === "Consumer") {
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
             <div class="container">
-                <h4 class="text-center">Wind: <%- windSpeed %> m/s</h4>
-                <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
-                <h4 class="text-center">Price per kWh: 1,27 kr</h4>
+                <h4 class="text-center">Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+                <h4 class="text-center">Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                <h4 class="text-center">Price per kWh: <span id="price">1,27</span> kr</h4>
             </div>
             </body>
-    <%} else if (ssn !== "Login" && role === "Manager") {
+    <%} else if (ssn.user !== "Login" && ssn.role === "Manager") {
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
                 <div class="container">
                     <div class="class=text-center" style="float: left; overflow: hidden;">
                         <h1 class="mt-5">Your Home Overview</h1>
-                        <h4 class="text-center">Wind: <%- windSpeed %> m/s</h4>
-                        <h4 class="text-center">Production: <%- production %> kWh</h4>
-                        <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
-                        <h4 class="text-center">Netto production: <%- production - consumption %> kWh</h4>
-                        <h4 class="text-center">Battery: <%- battery %> kWh</h4>
-                        <h4 class="text-center">Price per kWh: 1,27 kr</h4>
+                        <h4 class="text-center">Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+                        <h4 class="text-center">Production: <span id="production"><%- ssn.production %></span> kWh</h4>
+                        <h4 class="text-center">Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                        <h4 class="text-center">Netto production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
+                        <h4 class="text-center">Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
+                        <h4 class="text-center">Price per kWh: <span id="price">1,27</span> kr</h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
                         <body class="text-center">
@@ -46,24 +46,24 @@
                     </div>
                 </div>
             </body>
-    <%} else if (ssn !== "Login" && role === "Admin") {
+    <%} else if (ssn.ssn !== "Login" && ssn.role === "Admin") {
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
             <h1 class="mt-5">KOM IGEN NU BRITT MARIE KÖR FÖR FA A N</h1>
             </body>
     <%
-    } else if (ssn !== "Login" && role === "Prosumer") {
+    } else if (ssn.user !== "Login" && ssn.role === "Prosumer") {
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
                 <div class="container">
                     <div class="class=text-center" style="float: left; overflow: hidden;">
                         <h1 class="mt-5">Your Home Overview</h1>
-                        <h4 class="text-center">Wind: <%- windSpeed %> m/s</h4>
-                        <h4 class="text-center">Production: <%- production %> kWh</h4>
-                        <h4 class="text-center">Consumption: <%- consumption %> kWh</h4>
-                        <h4 class="text-center">Netto production: <%- production - consumption %> kWh</h4>
-                        <h4 class="text-center">Battery: <%- battery %> kWh</h4>
-                        <h4 class="text-center">Price per kWh: 1,27 kr</h4>
+                        <h4 class="text-center">Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+                        <h4 class="text-center">Production: <span id="production"><%- ssn.production %></span> kWh</h4>
+                        <h4 class="text-center">Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                        <h4 class="text-center">Netto production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
+                        <h4 class="text-center">Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
+                        <h4 class="text-center">Price per kWh: <span id="price">1,27</span> kr</h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
                         <body class="text-center">

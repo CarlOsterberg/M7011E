@@ -86,10 +86,7 @@ app.get('/home', (req, res) => {
     if (req.session.user) {
         updateDisplayVals(req, function (status) {
             if (status) {
-                res.render('home', {ssn: req.session.user, username: req.session.user,
-                    name: req.session.name, email: req.session.email, role: req.session.role,
-                    consumption: req.session.consumption, windSpeed : wind, production: req.session.production,battery: req.session.battery
-                    ,battery_use: req.session.battery_use,battery_sell: req.session.battery_sell});
+                res.render('home', {ssn: req.session, windSpeed : wind});
             }
             else {
                 console.log("Something went wrong")
@@ -129,6 +126,7 @@ app.get('/login', (req, res) => {
 app.get('/logged_in', (req, res) => {
     res.render('logged_in', {});
 });
+
 app.get('/logout', (req, res) => {
     req.session.destroy(function(err){
         if(err){
@@ -138,15 +136,19 @@ app.get('/logout', (req, res) => {
         }
     });
 });
+
 app.get('/createUser', (req, res) => {
     res.render('createUser', {});
 });
+
 app.get('/user_created', (req, res) => {
     res.render('user_created', {});
 });
+
 app.get('/user_exists', (req, res) => {
     res.render('user_exists', {});
 });
+
 app.get('/login_error', (req, res) => {
     res.render('login_error', {});
 });
@@ -326,6 +328,22 @@ app.post('/login',function(req,res) {
                 });
             });
         });
+    }
+});
+
+app.get('/ajax', function (req,res) {
+    if (req.session.user) {
+        updateDisplayVals(req, function (status) {
+            if (status) {
+                res.json(req.session)
+            }
+            else {
+                console.log("Something went wrong")
+            }
+        });
+    }
+    else {
+        res.json({});
     }
 });
 
