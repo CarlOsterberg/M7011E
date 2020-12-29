@@ -36,7 +36,7 @@
     <!-- Custom styles for this template -->
     <link href="site_files/sticky-footer-navbar.css" rel="stylesheet">
   </head>
-  <body class="text-center">
+  <body>
     <header>
   <!-- Fixed navbar -->
   <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
@@ -81,7 +81,20 @@
                 $('#battery').html(data.battery);
             }
         })
-    }, 3000)
+    }, 3000);
+    $("#form").submit(function(){
+        $.post("/ajax",
+            {
+                use: $('#use').val(),
+                storage: $('#storage').val()
+            },
+            function(data, status){
+                //$('#use').val(data.use);
+                //$('#storage').val(data.storage);
+            });
+        return false;
+    });
+
 </script>
 </body>
 </html>

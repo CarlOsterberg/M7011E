@@ -347,6 +347,20 @@ app.get('/ajax', function (req,res) {
     }
 });
 
+app.post('/ajax', function (req,res) {
+    if (req.session.user) {
+        MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+            if (err) return console.log(err)
+            let db = client.db(dbName);
+            db.collection("prosumers").updateOne({_id:req.session.user},
+                {$set: {"battery_use": req.body.use, "battery_sell":req.body.storage} })
+            req.session.battery_use = req.body.use;
+            req.session.battery_sell = req.body.storage;
+            return res.json({"use": req.body.use, "storage": req.body.storage});
+        });
+    }
+});
+
 app.listen(3000, function () {
     console.log('Listening on http://localhost:3000');
 });

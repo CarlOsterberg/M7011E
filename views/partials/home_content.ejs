@@ -1,9 +1,9 @@
 <div class="container" >
-    <%if (ssn.user == "Login") {
+    <%if (ssn == "Login") {
     %>
         <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
         <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
-        <form class="form-signin" action="/login_error" method="post" class="align-content-center">
+        <form class="form-signin" action="/login_error" class="align-content-center">
             <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
             <a href="login" >Log in to see your home page</a>
         </form>
@@ -12,34 +12,33 @@
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
             <div class="container">
-                <h4 class="text-center">Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
-                <h4 class="text-center">Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
-                <h4 class="text-center">Price per kWh: <span id="price">1,27</span> kr</h4>
+                <h4 >Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+                <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
             </div>
             </body>
     <%} else if (ssn.user !== "Login" && ssn.role === "Manager") {
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
                 <div class="container">
-                    <div class="class=text-center" style="float: left; overflow: hidden;">
+                    <div style="float: left; overflow: hidden;">
                         <h1 class="mt-5">Your Home Overview</h1>
-                        <h4 class="text-center">Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
-                        <h4 class="text-center">Production: <span id="production"><%- ssn.production %></span> kWh</h4>
-                        <h4 class="text-center">Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
-                        <h4 class="text-center">Netto production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
-                        <h4 class="text-center">Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
-                        <h4 class="text-center">Price per kWh: <span id="price">1,27</span> kr</h4>
+                        <h4>Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+                        <h4>Production: <span id="production"><%- ssn.production %></span> kWh</h4>
+                        <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                        <h4>Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
+                        <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
+                        <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
-                        <body class="text-center">
-                            <form class="form-signin" action="/battery" method="post">
+                        <body>
+                            <form class="form-signin" id="form">
                                 <h1 class="mt-5">Adjust battery</h1>
                                 <h5 class="mt-5">Use of battery %</h5>
-                                <input type="range" class="form-control-range">
-                                    <h5 class="mt-5">Storage of battery %</h5>
-                                    <input type="range" class="form-control-range">
-
-                                        <button class="btn btn-lg btn-dark btn-block" type="submit">Adjust</button>
+                                <input type="range" class="form-control-range" id="use" value="<%- ssn.battery_use %>">
+                                <h5 class="mt-5">Storage of battery %</h5>
+                                <input type="range" class="form-control-range" id="storage" value="<%- ssn.battery_sell %>">
+                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
                             </form>
 
                         </body>
@@ -56,25 +55,24 @@
     %>
             <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
                 <div class="container">
-                    <div class="class=text-center" style="float: left; overflow: hidden;">
+                    <div style="float: left; overflow: hidden;">
                         <h1 class="mt-5">Your Home Overview</h1>
-                        <h4 class="text-center">Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
-                        <h4 class="text-center">Production: <span id="production"><%- ssn.production %></span> kWh</h4>
-                        <h4 class="text-center">Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
-                        <h4 class="text-center">Netto production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
-                        <h4 class="text-center">Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
-                        <h4 class="text-center">Price per kWh: <span id="price">1,27</span> kr</h4>
+                        <h4>Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+                        <h4>Production: <span id="production"><%- ssn.production %></span> kWh</h4>
+                        <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                        <h4>Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
+                        <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
+                        <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
-                        <body class="text-center">
-                            <form class="form-signin" action="/battery" method="post">
+                        <body>
+                            <form class="form-signin" id="form">
                                 <h1 class="mt-5">Adjust battery</h1>
                                 <h5 class="mt-5">Use of battery %</h5>
-                                <input type="range" class="form-control-range">
+                                <input type="range" class="form-control-range" id="use" value="<%- ssn.battery_use %>">
                                 <h5 class="mt-5">Storage of battery %</h5>
-                                <input type="range" class="form-control-range">
-
-                                <button class="btn btn-lg btn-dark btn-block" type="submit">Adjust</button>
+                                <input type="range" class="form-control-range" id="storage" value="<%- ssn.battery_sell %>">
+                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
                             </form>
                         </body>
                     </div>
