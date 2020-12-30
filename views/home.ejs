@@ -75,10 +75,13 @@
     setInterval(function(){
         $.get( '/ajax', function(data) {
             if (data.user){
+                $('#wind').html(data.wind);
                 $('#production').html(data.production);
                 $('#consumption').html(data.consumption);
                 $('#netto').html(data.production-data.consumption);
                 $('#battery').html(data.battery);
+                $('#use_display').html(data.battery_use);
+                $('#storage_display').html(data.battery_sell);
             }
         })
     }, 3000);
@@ -89,8 +92,8 @@
                 storage: $('#storage').val()
             },
             function(data, status){
-                //$('#use').val(data.use);
-                //$('#storage').val(data.storage);
+                $('#use_display').html(data.use);
+                $('#storage_display').html(data.storage);
             });
         return false;
     });

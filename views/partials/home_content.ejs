@@ -34,9 +34,9 @@
                         <body>
                             <form class="form-signin" id="form">
                                 <h1 class="mt-5">Adjust battery</h1>
-                                <h5 class="mt-5">Use of battery %</h5>
+                                <h5 class="mt-5">Use of battery: <span id="use_display"><%- ssn.battery_use %></span>%</h5>
                                 <input type="range" class="form-control-range" id="use" value="<%- ssn.battery_use %>">
-                                <h5 class="mt-5">Storage of battery %</h5>
+                                <h5 class="mt-5">Storage of battery: <span id="storage_display"><%- ssn.battery_sell %></span>%</h5>
                                 <input type="range" class="form-control-range" id="storage" value="<%- ssn.battery_sell %>">
                                 <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
                             </form>
@@ -68,9 +68,9 @@
                         <body>
                             <form class="form-signin" id="form">
                                 <h1 class="mt-5">Adjust battery</h1>
-                                <h5 class="mt-5">Use of battery %</h5>
+                                <h5 class="mt-5">Use of battery: <span id="use_display"><%- ssn.battery_use %></span>%</h5>
                                 <input type="range" class="form-control-range" id="use" value="<%- ssn.battery_use %>">
-                                <h5 class="mt-5">Storage of battery %</h5>
+                                <h5 class="mt-5">Storage of battery: <span id="storage_display"><%- ssn.battery_sell %></span>%</h5>
                                 <input type="range" class="form-control-range" id="storage" value="<%- ssn.battery_sell %>">
                                 <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
                             </form>

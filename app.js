@@ -31,6 +31,9 @@ const url = 'mongodb://127.0.0.1:27017'
 const dbName = 'M7011E'
 
 let wind = 0;
+let price = 0;
+let market_demand = 0;
+let market_sell = 0;
 
 function updateDisplayVals(req,callback) {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
@@ -54,6 +57,9 @@ function updateDisplayVals(req,callback) {
             if (err) return console.log(err)
             if (windRes) {
                 wind = windRes[0].speed
+                price = windRes[0].price
+                market_demand = windRes[0].market_demand
+                market_sell = windRes[0].market_sell
             }
             db.collection(role).find({_id:req.session.user}).toArray(function (err,result) {
                 if (err) return console.log(err)
@@ -86,7 +92,13 @@ app.get('/home', (req, res) => {
     if (req.session.user) {
         updateDisplayVals(req, function (status) {
             if (status) {
-                res.render('home', {ssn: req.session, windSpeed : wind});
+                if (req.session.role == "Manager") {
+                    res.render('home', {ssn: req.session, windSpeed : wind, price: price,
+                    market_demand:market_demand, market_sell:market_sell});
+                }
+                else {
+                    res.render('home', {ssn: req.session, windSpeed : wind, price: price});
+                }
             }
             else {
                 console.log("Something went wrong")
@@ -335,7 +347,9 @@ app.get('/ajax', function (req,res) {
     if (req.session.user) {
         updateDisplayVals(req, function (status) {
             if (status) {
-                res.json(req.session)
+                let ajaxVals = req.session;
+                ajaxVals["wind"] = wind;
+                res.json(ajaxVals)
             }
             else {
                 console.log("Something went wrong")
@@ -349,15 +363,37 @@ app.get('/ajax', function (req,res) {
 
 app.post('/ajax', function (req,res) {
     if (req.session.user) {
-        MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
-            if (err) return console.log(err)
-            let db = client.db(dbName);
-            db.collection("prosumers").updateOne({_id:req.session.user},
-                {$set: {"battery_use": req.body.use, "battery_sell":req.body.storage} })
-            req.session.battery_use = req.body.use;
-            req.session.battery_sell = req.body.storage;
-            return res.json({"use": req.body.use, "storage": req.body.storage});
-        });
+        let role = ""
+        switch (req.session.role) {
+            case "Consumer":
+                role = "consumers"
+                break;
+            case "Prosumer":
+                role = "prosumers"
+                break;
+            case "Manager":
+                role = "managers"
+                break;
+            default:
+                console.log("Something went wrong")
+        }
+        if (role !== "consumers") {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName);
+                db.collection(role).updateOne({_id:req.session.user},
+                    {$set: {"battery_use": req.body.use, "battery_sell":req.body.storage} })
+                req.session.battery_use = req.body.use;
+                req.session.battery_sell = req.body.storage;
+                return res.json({"use": req.body.use, "storage": req.body.storage});
+            });
+        }
+        else {
+            return res.json({});
+        }
+    }
+    else {
+        return res.json({});
     }
 });
 

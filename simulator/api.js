@@ -5,6 +5,10 @@ const s = require("./sim");
 
 let simulator = new s();
 
+let currentdate = new Date();
+let latestHour = currentdate.getSeconds();
+let latestDay = currentdate.getMinutes();
+
 // Construct a schema, using GraphQL schema language
 
 
@@ -22,7 +26,24 @@ const schema = buildSchema(`
 // The root provides a resolver function for each API endpoint
 const Query = {
     price: () => simulator.priceObj.currentPrice,
-    wph: () => simulator.windObj.avgWindHour,
+    wph: () => {
+        currentdate = new Date();
+        currentHour = currentdate.getSeconds();
+        currentDay = currentdate.getMinutes();
+        if (currentDay!==latestDay) {
+            simulator.windObj.generateAvgWindDay();
+            simulator.windObj.generateAvgWindHour();
+            latestDay = currentDay;
+            latestHour = currentHour;
+            simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
+        }
+        else if (currentHour>latestHour+10) {
+            simulator.windObj.generateAvgWindHour();
+            latestHour = currentHour;
+            simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
+        }
+        return simulator.windObj.avgWindHour;
+    },
     wpd: () => simulator.windObj.avgWindDay,
     demand: ({numUsers}) => {
         let vals = [];
@@ -32,14 +53,16 @@ const Query = {
         }
         return vals;
     },
-    production: () => simulator.productionObj.prod,
+    production: () => {
+        return simulator.productionObj.prod;
+    },
 }
 
 var app = express();
 app.use('/graphql', graphqlHTTP({
     schema: schema,
     rootValue: Query,
-    graphiql: false,
+    graphiql: true,
 }));
 app.listen(8080);
 console.log('Running a GraphQL API server at http://localhost:8080/graphql');
