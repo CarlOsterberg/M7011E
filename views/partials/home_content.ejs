@@ -24,21 +24,22 @@
                     <div style="float: left; overflow: hidden;">
                         <h1 class="mt-5">Your Home Overview</h1>
                         <h4>Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
-                        <h4>Production: <span id="production"><%- ssn.production %></span> kWh</h4>
-                        <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
-                        <h4>Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
+                        <h4>PP Production: <span id="production"><%- ssn.production %></span> kWh</h4>
+                        <h4>PP Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                        <h4>PP Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
+                        <h4>Market Production: <span id="market_sell"><%- ssn.market_sell %></span> kWh</h4>
+                        <h4>Market Demand: <span id="market_demand"><%- ssn.market_demand %></span> kWh</h4>
                         <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
-                        <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
+                        <h4>Price per kWh: <span id="price"><%- ssn.price %></span> kr</h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
                         <body>
                             <form class="form-signin" id="form">
-                                <h1 class="mt-5">Adjust battery</h1>
-                                <h5 class="mt-5">Use of battery: <span id="use_display"><%- ssn.battery_use %></span>%</h5>
-                                <input type="range" class="form-control-range" id="use" value="<%- ssn.battery_use %>">
-                                <h5 class="mt-5">Storage of battery: <span id="storage_display"><%- ssn.battery_sell %></span>%</h5>
-                                <input type="range" class="form-control-range" id="storage" value="<%- ssn.battery_sell %>">
+                                <h1 class="mt-5">Adjust production</h1>
+                                <label for="pp_production" class="sr-only">Production</label>
+                                <input name="pp_production" type="number" id="pp_production" class="form-control" value="<%- ssn.production %>" required="" autofocus="">
                                 <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
+                                <h7 class="mt-5">Obs! Changes takes a while to come to effect! (30 sec)</h7>
                             </form>
 
                         </body>

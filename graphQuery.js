@@ -66,14 +66,14 @@ setInterval(function(){
                             let battery = prosumers[j].battery
                             if (netto>0) {
                                 battery += netto * (prosumers[j].battery_sell/100)
-                                market_demand += netto * (1 - prosumers[j].battery_sell/100);
+                                market_sell += netto * (1 - prosumers[j].battery_sell/100);
                                 if (battery>1000) {
                                     battery = 1000;
                                 }
                             }
                             else {
                                 battery += netto * (prosumers[j].battery_use/100);
-                                market_sell -= netto * (1 - prosumers[j].battery_use/100);
+                                market_demand -= netto * (1 - prosumers[j].battery_use/100);
                                 if (battery<0) {
                                     battery = 0;
                                     //blackout
@@ -82,9 +82,10 @@ setInterval(function(){
                             db.collection("prosumers").updateOne({_id:prosumers[j]._id},
                                 {$set: {"consumption": q_d[consumers.length + j - 1], "production":production, "battery":battery} })
                         }
-                        let pp_production = 100;
+                        let pp_production = managers[0].production;
                         let old_charge = managers[0].battery;
-                        let pp_battery_charge = old_charge + pp_production-5*q_d[consumers.length+prosumers.length]-market_demand+market_sell;
+
+                        let pp_battery_charge = old_charge + pp_production - q_d[consumers.length+prosumers.length] - market_demand + market_sell;
                         if (pp_battery_charge>10000) {
                             pp_battery_charge = 10000;
                         }

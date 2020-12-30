@@ -349,6 +349,9 @@ app.get('/ajax', function (req,res) {
             if (status) {
                 let ajaxVals = req.session;
                 ajaxVals["wind"] = wind;
+                ajaxVals["price"] = price;
+                ajaxVals["market_sell"] = market_sell;
+                ajaxVals["market_demand"] = market_demand;
                 res.json(ajaxVals)
             }
             else {
@@ -377,7 +380,7 @@ app.post('/ajax', function (req,res) {
             default:
                 console.log("Something went wrong")
         }
-        if (role !== "consumers") {
+        if (role === "prosumers") {
             MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) return console.log(err)
                 let db = client.db(dbName);
@@ -386,6 +389,13 @@ app.post('/ajax', function (req,res) {
                 req.session.battery_use = req.body.use;
                 req.session.battery_sell = req.body.storage;
                 return res.json({"use": req.body.use, "storage": req.body.storage});
+            });
+        } else if (role === "managers") {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName);
+                db.collection("managers").updateMany({},{$set: {"production":req.body.pp_production}});
+                return res.json({"pp_production":req.body.pp_production});
             });
         }
         else {
