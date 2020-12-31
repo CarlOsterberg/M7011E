@@ -82,10 +82,10 @@ setInterval(function(){
                             db.collection("prosumers").updateOne({_id:prosumers[j]._id},
                                 {$set: {"consumption": q_d[consumers.length + j - 1], "production":production, "battery":battery} })
                         }
-                        let pp_production = managers[0].production;
+                        let pp_production = Number(managers[0].production);
                         let old_charge = managers[0].battery;
-
-                        let pp_battery_charge = old_charge + pp_production - q_d[consumers.length+prosumers.length] - market_demand + market_sell;
+                        let con = q_d[consumers.length+prosumers.length]
+                        let pp_battery_charge = (old_charge + pp_production - con - market_demand + market_sell);
                         if (pp_battery_charge>10000) {
                             pp_battery_charge = 10000;
                         }
