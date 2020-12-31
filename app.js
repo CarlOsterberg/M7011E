@@ -65,11 +65,14 @@ function updateDisplayVals(req,callback) {
                 if (err) return console.log(err)
                 if (result) {
                     req.session.consumption = result[0].consumption
-                    if (role !== "consumers") {
+                    if (role === "prosumers") {
                         req.session.production = result[0].production
                         req.session.battery = result[0].battery
                         req.session.battery_use = result[0].battery_use
                         req.session.battery_sell = result[0].battery_sell
+                    } else if (role === "managers") {
+                        req.session.production = result[0].production
+                        req.session.battery = result[0].battery
                     }
                     client.close();
                     callback(true);
@@ -167,9 +170,6 @@ app.get('/login_error', (req, res) => {
 
 app.post('/createUser',function(req,res) {
     if (!req.session.user) {
-        let consumer = 0
-        let manager = 0
-        let prosumer = 0
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
             if (err) return console.log(err)
             let db = client.db(dbName)
@@ -233,9 +233,7 @@ app.post('/createUser',function(req,res) {
                                             _id: req.body.username,
                                             consumption: 0,
                                             production: 0,
-                                            battery: 0,
-                                            battery_use: 0,
-                                            battery_sell: 0
+                                            battery: 0
                                         }
                                         db.collection("managers").insertOne(managers,function (err, result) {
                                             if(err) {
@@ -349,6 +347,9 @@ app.get('/ajax', function (req,res) {
             if (status) {
                 let ajaxVals = req.session;
                 ajaxVals["wind"] = wind;
+                ajaxVals["price"] = price;
+                ajaxVals["market_sell"] = market_sell;
+                ajaxVals["market_demand"] = market_demand;
                 res.json(ajaxVals)
             }
             else {
@@ -377,7 +378,7 @@ app.post('/ajax', function (req,res) {
             default:
                 console.log("Something went wrong")
         }
-        if (role !== "consumers") {
+        if (role === "prosumers") {
             MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) return console.log(err)
                 let db = client.db(dbName);
@@ -386,6 +387,14 @@ app.post('/ajax', function (req,res) {
                 req.session.battery_use = req.body.use;
                 req.session.battery_sell = req.body.storage;
                 return res.json({"use": req.body.use, "storage": req.body.storage});
+            });
+        } else if (role === "managers") {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName);
+                db.collection("managers").updateMany({},{$set: {"production":req.body.pp_production}});
+                req.session.production = req.body.pp_production;
+                return res.json({"pp_production":req.body.pp_production});
             });
         }
         else {
