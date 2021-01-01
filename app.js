@@ -389,13 +389,15 @@ app.post('/ajax', function (req,res) {
                 return res.json({"use": req.body.use, "storage": req.body.storage});
             });
         } else if (role === "managers") {
-            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+            setTimeout(function(){
+                MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) return console.log(err)
                 let db = client.db(dbName);
                 db.collection("managers").updateMany({},{$set: {"production":req.body.pp_production}});
                 req.session.production = req.body.pp_production;
                 return res.json({"pp_production":req.body.pp_production});
-            });
+                });
+            }, 30000);
         }
         else {
             return res.json({});
