@@ -56,11 +56,13 @@ setInterval(function(){
                         let production = d.data["production"];
                         let market_demand = 0;
                         let market_sell = 0;
-                        for (let i = 0;i<consumers.length;i++) {
-                            //console.log({_id:result[i]._id}, {$set: {"kWh": q_d[j]} })
-                            market_demand += q_d[i];
-                            db.collection("consumers").updateOne({_id:consumers[i]._id}, {$set: {"consumption": q_d[i]} })
-                        }
+
+                        /** PP PRODUCTION */
+                        let pp_production = Number(managers[0].production);
+                        let old_charge = managers[0].battery;
+                        let con = q_d[consumers.length+prosumers.length]
+                        let pp_battery_charge = (old_charge + pp_production - con);
+
                         for (let j=0;j<prosumers.length;j++) {
                             let netto = production-q_d[consumers.length + j - 1]
                             let battery = prosumers[j].battery
@@ -80,12 +82,16 @@ setInterval(function(){
                                 }
                             }
                             db.collection("prosumers").updateOne({_id:prosumers[j]._id},
-                                {$set: {"consumption": q_d[consumers.length + j - 1], "production":production, "battery":battery} })
+                                {$set: {"consumption": q_d[consumers.length + j - 1], "production":production, "battery":battery, "blackout": false } })
                         }
-                        let pp_production = Number(managers[0].production);
-                        let old_charge = managers[0].battery;
-                        let con = q_d[consumers.length+prosumers.length]
-                        let pp_battery_charge = (old_charge + pp_production - con - market_demand + market_sell);
+
+                        for (let i = 0;i<consumers.length;i++) {
+                            //console.log({_id:result[i]._id}, {$set: {"kWh": q_d[j]} })
+                            market_demand += q_d[i];
+                            db.collection("consumers").updateOne({_id:consumers[i]._id}, {$set: {"consumption": q_d[i]}, "blackout": false })
+                        }
+
+                        /** db update managers and global variables*/
                         if (pp_battery_charge>10000) {
                             pp_battery_charge = 10000;
                         }
@@ -93,7 +99,7 @@ setInterval(function(){
                             pp_battery_charge = 0;
                         }
                         db.collection("managers").updateMany({},{$set: {"consumption": q_d[consumers.length+prosumers.length],
-                            "production":pp_production, "battery":pp_battery_charge}});
+                                "production":pp_production, "battery":pp_battery_charge}});
                         db.collection("wind").updateOne({_id:"wind"}, {$set: {"speed": wind, "market_demand": market_demand,
                                 "market_sell": market_sell,"price": 2.17}})
                     });

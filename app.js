@@ -64,15 +64,20 @@ function updateDisplayVals(req,callback) {
             db.collection(role).find({_id:req.session.user}).toArray(function (err,result) {
                 if (err) return console.log(err)
                 if (result) {
-                    req.session.consumption = result[0].consumption
-                    if (role === "prosumers") {
+                    if(role === "consumers") {
+                        req.session.consumption = result[0].consumption
+                        req.session.blackout = result[0].blackout
+                    } else if (role === "prosumers") {
                         req.session.production = result[0].production
                         req.session.battery = result[0].battery
                         req.session.battery_use = result[0].battery_use
                         req.session.battery_sell = result[0].battery_sell
+                        req.session.consumption = result[0].consumption
+                        req.session.blackout = result[0].blackout
                     } else if (role === "managers") {
                         req.session.production = result[0].production
                         req.session.battery = result[0].battery
+                        req.session.consumption = result[0].consumption
                     }
                     client.close();
                     callback(true);
@@ -199,7 +204,8 @@ app.post('/createUser',function(req,res) {
                                     if(req.body.role === "Consumer") {
                                         let consumers = {
                                             _id: req.body.username,
-                                            consumption: 0
+                                            consumption: 0,
+                                            blackout: false
                                         }
                                         db.collection("consumers").insertOne(consumers, function (err, result) {
                                             if (err) {
@@ -216,7 +222,8 @@ app.post('/createUser',function(req,res) {
                                             production: 0,
                                             battery: 0,
                                             battery_use: 0,
-                                            battery_sell: 0
+                                            battery_sell: 0,
+                                            blackout: false
                                         }
                                         db.collection("prosumers").insertOne(prosumers,function (err, result) {
                                             if(err) {
@@ -233,7 +240,7 @@ app.post('/createUser',function(req,res) {
                                             _id: req.body.username,
                                             consumption: 0,
                                             production: 0,
-                                            battery: 0
+                                            battery: 0,
                                         }
                                         db.collection("managers").insertOne(managers,function (err, result) {
                                             if(err) {
@@ -291,6 +298,7 @@ app.post('/login',function(req,res) {
                                     req.session.battery =  result3[0].battery;
                                     req.session.battery_sell =  result3[0].battery_sell;
                                     req.session.battery_use =  result3[0].battery_use;
+                                    req.session.blackout = result3[0].blackout;
                                     client.close();
                                     return res.redirect('/home');
                                 } else {
@@ -303,6 +311,7 @@ app.post('/login',function(req,res) {
                                 if(result3) {
                                     req.session.role = "Consumer";
                                     req.session.consumption = result3[0].consumption;
+                                    req.session.blackout = result3[0].blackout;
                                     client.close();
                                     return res.redirect('/home');
                                 } else {
