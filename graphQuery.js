@@ -69,27 +69,35 @@ setInterval(function(){
                             let netto = production-q_d[j]
                             let battery = prosumers[j].battery
                             let self_prod = false;
+                            let blackout = false;
                             if (netto>0) {
                                 battery += netto * (prosumers[j].battery_sell/100)
                                 market_sell += netto * (1 - prosumers[j].battery_sell/100);
                                 self_prod = true;
                                 if (battery>1000) {
+                                    market_sell += battery - 1000;
                                     battery = 1000;
                                 }
                             }
                             else {
-                                battery += netto * (prosumers[j].battery_use/100);
-                                market_demand -= netto * (1 - prosumers[j].battery_use/100);
+                                if(battery + netto * (prosumers[j].battery_use/100) > 0 && pp_battery_charge - market_demand - netto * (1 - prosumers[j].battery_use/100) > 0) {
+                                    battery += netto * (prosumers[j].battery_use/100);
+                                    market_demand -= netto * (1 - prosumers[j].battery_use/100);
+                                } else if (battery + netto > 0){
+                                    battery += netto
+                                } else if (pp_battery_charge - market_demand - netto){
+                                    market_demand -= netto
+                                } else {
+                                    battery += netto * (prosumers[j].battery_use/100);
+                                    market_demand -= netto * (1 - prosumers[j].battery_use/100);
+                                    nmbr_blackouts+=1;
+                                    blackout = true;
+                                }
                                 if (battery<0) {
                                     battery = 0;
                                 }
                             }
-                            let blackout = false;
-                            market_demand += q_d[j];
-                            if (pp_battery_charge + market_sell - market_demand < 0 && !self_prod) {
-                                nmbr_blackouts+=1;
-                                blackout = true;
-                            }
+                            //market_demand += q_d[j];
                             db.collection("prosumers").updateOne({_id:prosumers[j]._id},
                                 {$set: {"consumption": q_d[j], "production":production,
                                         "battery":battery, "blackout": blackout } })
