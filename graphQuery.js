@@ -56,6 +56,7 @@ setInterval(function(){
                         let production = d.data["production"];
                         let market_demand = 0;
                         let market_sell = 0;
+                        let alert = d.data["alert"];
 
                         /** PP PRODUCTION */
                         let pp_production = Number(managers[0].production);
@@ -113,10 +114,15 @@ setInterval(function(){
                         else if (pp_battery_charge<0) {
                             pp_battery_charge = 0;
                         }
+                        if (pp_battery_charge < 1000) {
+                            alert = true;
+                        } else {
+                            alert = false;
+                        }
                         db.collection("managers").updateMany({},{$set: {"consumption": q_d[consumers.length+prosumers.length],
                                 "production":pp_production, "battery":pp_battery_charge, "blackouts":nmbr_blackouts}});
                         db.collection("wind").updateOne({_id:"wind"}, {$set: {"speed": wind, "market_demand": market_demand,
-                                "market_sell": market_sell,"price": 2.17}})
+                                "market_sell": market_sell,"price": 2.17, "alert": alert}})
                     });
                 });
             });

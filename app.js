@@ -34,6 +34,7 @@ let wind = 0;
 let price = 0;
 let market_demand = 0;
 let market_sell = 0;
+let alert = false;
 
 function updateDisplayVals(req,callback) {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
@@ -60,6 +61,7 @@ function updateDisplayVals(req,callback) {
                 price = windRes[0].price
                 market_demand = windRes[0].market_demand
                 market_sell = windRes[0].market_sell
+                alert = windRes[0].alert
             }
             db.collection(role).find({_id:req.session.user}).toArray(function (err,result) {
                 if (err) return console.log(err)
@@ -106,7 +108,7 @@ app.get('/home', (req, res) => {
                     market_demand:market_demand, market_sell:market_sell});
                 }
                 else {
-                    res.render('home', {ssn: req.session, windSpeed : wind, price: price});
+                    res.render('home', {ssn: req.session, windSpeed : wind, price: price, alert: alert});
                 }
             }
             else {
@@ -361,6 +363,7 @@ app.get('/ajax', function (req,res) {
                 ajaxVals["price"] = price;
                 ajaxVals["market_sell"] = market_sell;
                 ajaxVals["market_demand"] = market_demand;
+                ajaxVals["alert"] = alert;
                 res.json(ajaxVals)
             }
             else {
