@@ -62,13 +62,16 @@ setInterval(function(){
                         let old_charge = managers[0].battery;
                         let con = q_d[consumers.length+prosumers.length]
                         let pp_battery_charge = (old_charge + pp_production - con);
+                        let nmbr_blackouts = 0;
 
                         for (let j=0;j<prosumers.length;j++) {
-                            let netto = production-q_d[consumers.length + j - 1]
+                            let netto = production-q_d[j]
                             let battery = prosumers[j].battery
+                            let self_prod = false;
                             if (netto>0) {
                                 battery += netto * (prosumers[j].battery_sell/100)
                                 market_sell += netto * (1 - prosumers[j].battery_sell/100);
+                                self_prod = true;
                                 if (battery>1000) {
                                     battery = 1000;
                                 }
@@ -78,20 +81,32 @@ setInterval(function(){
                                 market_demand -= netto * (1 - prosumers[j].battery_use/100);
                                 if (battery<0) {
                                     battery = 0;
-                                    //blackout
                                 }
                             }
+                            let blackout = false;
+                            market_demand += q_d[j];
+                            if (pp_battery_charge + market_sell - market_demand < 0 && !self_prod) {
+                                nmbr_blackouts+=1;
+                                blackout = true;
+                            }
                             db.collection("prosumers").updateOne({_id:prosumers[j]._id},
-                                {$set: {"consumption": q_d[consumers.length + j - 1], "production":production, "battery":battery, "blackout": false } })
+                                {$set: {"consumption": q_d[j], "production":production,
+                                        "battery":battery, "blackout": blackout } })
                         }
 
                         for (let i = 0;i<consumers.length;i++) {
-                            //console.log({_id:result[i]._id}, {$set: {"kWh": q_d[j]} })
-                            market_demand += q_d[i];
-                            db.collection("consumers").updateOne({_id:consumers[i]._id}, {$set: {"consumption": q_d[i]}, "blackout": false })
+                            let blackout = false;
+                            market_demand += q_d[prosumers.length + i - 1];
+                            if (pp_battery_charge + market_sell - market_demand < 0) {
+                                nmbr_blackouts+=1;
+                                blackout = true;
+                            }
+                            db.collection("consumers").updateOne({_id:consumers[i]._id},
+                                {$set: {"consumption": q_d[prosumers.length + i - 1], "blackout": blackout }})
                         }
 
                         /** db update managers and global variables*/
+                        pp_battery_charge += market_sell - market_demand;
                         if (pp_battery_charge>10000) {
                             pp_battery_charge = 10000;
                         }
@@ -99,7 +114,7 @@ setInterval(function(){
                             pp_battery_charge = 0;
                         }
                         db.collection("managers").updateMany({},{$set: {"consumption": q_d[consumers.length+prosumers.length],
-                                "production":pp_production, "battery":pp_battery_charge}});
+                                "production":pp_production, "battery":pp_battery_charge, "blackouts":nmbr_blackouts}});
                         db.collection("wind").updateOne({_id:"wind"}, {$set: {"speed": wind, "market_demand": market_demand,
                                 "market_sell": market_sell,"price": 2.17}})
                     });

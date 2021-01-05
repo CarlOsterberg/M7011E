@@ -78,6 +78,7 @@ function updateDisplayVals(req,callback) {
                         req.session.production = result[0].production
                         req.session.battery = result[0].battery
                         req.session.consumption = result[0].consumption
+                        req.session.blackouts =  result[0].blackouts;
                     }
                     client.close();
                     callback(true);
@@ -328,6 +329,7 @@ app.post('/login',function(req,res) {
                                     req.session.battery =  result3[0].battery;
                                     req.session.battery_sell =  result3[0].battery_sell;
                                     req.session.battery_use =  result3[0].battery_use;
+                                    req.session.blackouts =  result3[0].blackouts;
                                     client.close();
                                     return res.redirect('/home');
                                 } else {

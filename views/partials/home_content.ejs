@@ -15,6 +15,7 @@
                 <h4 >Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
                 <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
                 <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
+                <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
             </div>
             </body>
     <%} else if (ssn.user !== "Login" && ssn.role === "Manager") {
@@ -31,6 +32,7 @@
                         <h4>Market Demand: <span id="market_demand"><%- ssn.market_demand %></span> kWh</h4>
                         <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
                         <h4>Price per kWh: <span id="price"><%- ssn.price %></span> kr</h4>
+                        <h4>Blackouts: <span id="blackouts"><%- ssn.blackouts %></span> st</h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
                         <body>
@@ -64,6 +66,7 @@
                         <h4>Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
                         <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
                         <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
+                        <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
                         <body>

@@ -85,6 +85,15 @@
                 $('#price').html(data.price);
                 $('#market_demand').html(data.market_demand);
                 $('#market_sell').html(data.market_sell);
+                $('#blackouts').html(data.blackouts);
+                if (data.role!="Manager") {
+                    if (data.blackout) {
+                        $('#blackout').html("true");
+                    }
+                    else {
+                        $('#blackout').html("false");
+                    }
+                }
             }
         })
     }, 3000);
