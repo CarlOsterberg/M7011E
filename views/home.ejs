@@ -7,7 +7,7 @@
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Jekyll v4.1.1">
 
-    <title>Placeholder</title>
+    <title>GLE</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/sticky-footer-navbar/">
 
@@ -93,10 +93,16 @@
                     else {
                         $('#blackout').html("false");
                     }
+                    if(data.alert){
+                        $('#alert').css('display','inherit');
+                    }
+                    else{
+                        $('#alert').css('display','none');
+                    }
                 }
             }
         })
-    }, 3000);
+    }, 1000);
     $("#form").submit(function(){
         $.post("/ajax",
             {

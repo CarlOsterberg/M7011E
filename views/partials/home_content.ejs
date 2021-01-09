@@ -16,6 +16,7 @@
                 <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
                 <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
                 <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
+                <h4 id="alert" style="color:#ff0000; display:None"> Warning: A blackout might happen, <br> make sure to save as much energy as you can!</h4>
             </div>
             </body>
     <%} else if (ssn.user !== "Login" && ssn.role === "Manager") {
@@ -67,6 +68,8 @@
                         <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
                         <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
                         <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
+                        <h4 id="alert" style="color:#ff0000; display:None" > Warning: A blackout might happen, <br> make sure to save as much energy as you can!</h4>
+
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
                         <body>
