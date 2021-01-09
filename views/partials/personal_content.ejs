@@ -1,23 +1,23 @@
 <div class="container">
-    <%if (ssn !== "Login") {
+    <% if (ssn !== "Login") {
     %>
         <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg');">
         <h1 class="text-center">My Account</h1>
-        <h4 class="text-center">Name: <%= name %></h4>
-        <h4 class="text-center">Username: <%= username %></h4>
-        <h4 class="text-center">Email: <%= email %></h4>
-        <h4 class="text-center">Role: <%= role %></h4>
+        <h4 class="text-center">Name: <%= ssn.name %></h4>
+        <h4 class="text-center">Username: <%= ssn.username %></h4>
+        <h4 class="text-center">Email: <%= ssn.email %></h4>
+        <h4 class="text-center">Role: <%= ssn.role %></h4>
         </body>
     <%
     } else {
     %>
-                    <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
-                    <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
-                    <form class="form-signin" action="/login_error" method="post" class="align-content-center">
-                            <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
-                            <a href="login" >Log in to see your personal page</a>
-                    </form>
-                    </body>
+        <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+        <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
+        <form class="form-signin" action="/login_error" method="post" class="align-content-center">
+            <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
+            <a href="login">Log in to see your personal page</a>
+        </form>
+        </body>
     <%
-    }%>
+    } %>
 </div>
