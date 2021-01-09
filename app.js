@@ -104,7 +104,6 @@ function updateDisplayVals(req, callback) {
             db.collection("users").find({"username": req.session.user}).toArray(function (err, result) {
                 if (err) return console.log(err)
                 if (result) {
-                    console.log(result)
                     req.session.image = result[0].image
                     db.collection(role).find({_id: req.session.user}).toArray(function (err, result) {
                         if (err) return console.log(err)
@@ -166,7 +165,6 @@ app.get('/home', (req, res) => {
 
 app.get('/personal', (req, res) => {
     if (req.session.user) {
-        console.log(req.session)
         res.render('personal', {
             ssn: req.session, image: req.session.image
         });
