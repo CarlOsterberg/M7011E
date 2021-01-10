@@ -13,6 +13,47 @@ const MongoClient = require("mongodb");
 const bcrypt = require("bcrypt");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
+const multer = require('multer');
+
+const deleteFile = (file) => {
+    fs.unlink(file, (err) => {
+        if (err) throw err;
+    });
+}
+
+// Set The Storage Engine
+const storage = multer.diskStorage({
+    destination: './views/partials/public/uploads/',
+    filename: function (req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+// Init Upload
+const upload = multer({
+    storage: storage,
+    limits: {fileSize: 1000000},
+    fileFilter: function (req, file, cb) {
+        checkFileType(file, cb);
+    }
+}).single('image');
+
+// Check File Type
+function checkFileType(file, cb) {
+    //correct file path
+    // Allowed ext
+    const filetypes = /jpeg|jpg|png|gif/;
+    // Check ext
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    // Check mime
+    const mimetype = filetypes.test(file.mimetype);
+
+    if (mimetype && extname) {
+        return cb(null, true);
+    } else {
+        cb('Error: Images Only!');
+    }
+}
 
 app.use(session({
     secret: 'wewo',
@@ -21,7 +62,6 @@ app.use(session({
     saveUninitialized: true,
     resave: false
 }));
-
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/views'));
@@ -118,7 +158,6 @@ function blockLoop(user) {
         })
     }, 1000)
 }
-
 function updateDisplayVals(req, callback) {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
         if (err) return console.log(err)
@@ -146,31 +185,36 @@ function updateDisplayVals(req, callback) {
                 market_sell = windRes[0].market_sell
                 alert = windRes[0].alert
             }
-            db.collection(role).find({_id: req.session.user}).toArray(function (err, result) {
+            db.collection("users").find({"username": req.session.user}).toArray(function (err, result) {
                 if (err) return console.log(err)
                 if (result) {
-                    if (role === "consumers") {
-                        req.session.consumption = result[0].consumption
-                        req.session.blackout = result[0].blackout
-                    } else if (role === "prosumers") {
-                        req.session.production = result[0].production
-                        req.session.battery = result[0].battery
-                        req.session.battery_use = result[0].battery_use
-                        req.session.battery_sell = result[0].battery_sell
-                        req.session.consumption = result[0].consumption
-                        req.session.blackout = result[0].blackout
-                        req.session.sell_block = result[0].sell_block
-                    } else if (role === "managers") {
-                        req.session.production = result[0].production
-                        req.session.battery = result[0].battery
-                        req.session.consumption = result[0].consumption
-                        req.session.blackouts = result[0].blackouts;
-                    }
-                    client.close();
-                    callback(true);
-                } else {
-                    client.close()
-                    callback(false);
+                    req.session.image = result[0].image
+                    db.collection(role).find({_id: req.session.user}).toArray(function (err, result) {
+                        if (err) return console.log(err)
+                        if (result) {
+                            if (role === "consumers") {
+                                req.session.consumption = result[0].consumption
+                                req.session.blackout = result[0].blackout
+                            } else if (role === "prosumers") {
+                                req.session.production = result[0].production
+                                req.session.battery = result[0].battery
+                                req.session.battery_use = result[0].battery_use
+                                req.session.battery_sell = result[0].battery_sell
+                                req.session.consumption = result[0].consumption
+                                req.session.blackout = result[0].blackout
+                            } else if (role === "managers") {
+                                req.session.production = result[0].production
+                                req.session.battery = result[0].battery
+                                req.session.consumption = result[0].consumption
+                                req.session.blackouts = result[0].blackouts;
+                            }
+                            client.close();
+                            callback(true);
+                        } else {
+                            client.close()
+                            callback(false);
+                        }
+                    });
                 }
             });
         });
@@ -205,7 +249,9 @@ app.get('/home', (req, res) => {
 
 app.get('/personal', (req, res) => {
     if (req.session.user) {
-        res.render('personal', {ssn: req.session});
+        res.render('personal', {
+            ssn: req.session, image: req.session.image
+        });
     } else {
         res.render('personal', {ssn: "Login"});
     }
@@ -297,6 +343,47 @@ app.get('/login_error', (req, res) => {
     res.render('login_error', {});
 });
 
+
+app.post('/personal', (req, res) => {
+    upload(req, res, (err) => {
+        if (err) {
+            res.render('personal',
+                {
+                    ssn: req.session, msg: err, image: req.session.image
+                });
+        } else {
+            if (req.file == undefined) {
+                res.render('personal',
+                    {
+                        ssn: req.session,
+                        msg: 'Error: No File Selected!',
+                        image: req.session.image
+                    });
+            } else {
+                MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                    if (err) return console.log(err)
+                    let db = client.db(dbName)
+                    let displayPath = req.file.path.slice(6);
+                    let query = {username: req.session.user}
+                    db.collection("users").find(query).toArray(function (err, result) {
+                        if (err) return console.log(err)
+                        if(result[0].image!== "partials/public/uploads/harry.png" && result[0].image!=="partials/public/uploads/default.jpg" && result[0].image!=="partials/public/uploads/manager_default.png") {
+                            deleteFile("views/"+result[0].image)
+                        }
+                        db.collection("users").updateOne({"username": req.session.user},
+                            {$set: {"image": displayPath}});
+                        res.render('personal',
+                            {
+                                ssn: req.session, msg: 'File Uploaded!',
+                                image: displayPath
+                            });
+                    });
+                });
+
+            }
+        }
+    });
+});
 app.post('/createUser', function (req, res) {
     if (!req.session.user) {
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
@@ -308,12 +395,16 @@ app.post('/createUser', function (req, res) {
                 if (!result.length) {
                     bcrypt.genSalt(10, function (err, salt) {
                         bcrypt.hash(req.body.password, salt, function (err, hash) {
+                            let imagepath = "partials/public/uploads/harry.png"
                             if (req.body.role === "Consumer") {
                                 roles = "Consumer"
+                                imagepath = "partials/public/uploads/default.jpg"
                             } else if (req.body.role === "Prosumer") {
                                 roles = "Prosumer"
+                                imagepath = "partials/public/uploads/default.jpg"
                             } else {
                                 roles = "Manager"
+                                imagepath = "partials/public/uploads/manager_default.png"
                             }
                             let user = {
                                 name: req.body.name,
@@ -322,6 +413,7 @@ app.post('/createUser', function (req, res) {
                                 email: req.body.email,
                                 role: roles,
                                 logged_in: false
+                                image: imagepath
                             }
                             db.collection("users").insertOne(user, function (err, result) {
                                 if (err) {
@@ -413,6 +505,7 @@ app.post('/login', function (req, res) {
                         req.session.user = req.body.login;
                         req.session.email = result[0].email;
                         req.session.name = result[0].name;
+                        req.session.image = result[0].image;
                         if (result[0].role === "Prosumer") {
                             let query2 = {_id: req.session.user}
                             db.collection("prosumers").find(query2).toArray(function (err, result3) {
