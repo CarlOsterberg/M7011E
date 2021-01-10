@@ -35,6 +35,64 @@ let market_demand = 0;
 let market_sell = 0;
 let alert = false;
 
+function formattedUserJSON(req, callback) {
+    if (req.session.user) {
+        if (req.session.role === "Manager") {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName)
+                db.collection("users").find().toArray(function (manErr, users) {
+                    if (manErr) return console.log(manErr)
+                    db.collection("consumers").find().toArray(function (consErr, consumers) {
+                        if (consErr) return console.log(consErr)
+                        db.collection("prosumers").find().toArray(function (proErr, prosumers) {
+                            if (consErr) return console.log(proErr)
+
+                            let formattedUsers = {
+                                "consumers": {"name": [], "logged_in": []},
+                                "prosumers": {"name": [], "logged_in": [], "sell_block": []}
+                            }
+                            let nmbrConsumers = 0
+                            let nmbrProsumers = 0
+                            for (let i = 0; i < users.length; i++) {
+                                for (let j = 0; j < consumers.length; j++) {
+                                    if (users[i].username === consumers[j]._id) {
+                                        formattedUsers.consumers.name[nmbrConsumers] = consumers[j]._id
+                                        if (users[i].logged_in) {
+                                            formattedUsers.consumers.logged_in[nmbrConsumers] = users[i].logged_in
+                                        } else {
+                                            formattedUsers.consumers.logged_in[nmbrConsumers] = false;
+                                        }
+                                        nmbrConsumers++;
+                                    }
+                                }
+                                for (let k = 0; k < prosumers.length; k++) {
+                                    if (users[i].username === prosumers[k]._id) {
+                                        formattedUsers.prosumers.name[nmbrProsumers] = prosumers[k]._id
+                                        formattedUsers.prosumers.sell_block[nmbrProsumers] = prosumers[k].sell_block
+                                        if (users[i].logged_in) {
+                                            formattedUsers.prosumers.logged_in[nmbrProsumers] = users[i].logged_in
+                                        } else {
+                                            formattedUsers.prosumers.logged_in[nmbrProsumers] = false;
+                                        }
+                                        nmbrProsumers++;
+                                    }
+                                }
+                            }
+                            client.close()
+                            callback(formattedUsers)
+                        });
+                    });
+                });
+            });
+        } else {
+            callback("Error not user")
+        }
+    } else {
+        callback("Error not logged in")
+    }
+}
+
 function blockLoop(user) {
     setTimeout(function () {
         MongoClient.connect(url, {
@@ -154,62 +212,51 @@ app.get('/personal', (req, res) => {
 });
 
 app.get('/user_overview', (req, res) => {
-    if (req.session.user) {
-        if (req.session.role === "Manager") {
-            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
-                if (err) return console.log(err)
-                let db = client.db(dbName)
-                db.collection("users").find().toArray(function (manErr, users) {
-                    if (manErr) return console.log(manErr)
-                    db.collection("consumers").find().toArray(function (consErr, consumers) {
-                        if (consErr) return console.log(consErr)
-                        db.collection("prosumers").find().toArray(function (proErr, prosumers) {
-                            if (consErr) return console.log(proErr)
-
-                            let formattedUsers = {
-                                "consumers": {"name": [], "logged_in": []},
-                                "prosumers": {"name": [], "logged_in": [], "sell_block": []}
-                            }
-                            let nmbrConsumers = 0
-                            let nmbrProsumers = 0
-                            for (let i = 0; i < users.length; i++) {
-                                for (let j = 0; j < consumers.length; j++) {
-                                    if (users[i].username === consumers[j]._id) {
-                                        formattedUsers.consumers.name[nmbrConsumers] = consumers[j]._id
-                                        if (users[i].logged_in) {
-                                            formattedUsers.consumers.logged_in[nmbrConsumers] = users[i].logged_in
-                                        } else {
-                                            formattedUsers.consumers.logged_in[nmbrConsumers] = false;
-                                        }
-                                        nmbrConsumers++;
-                                    }
-                                }
-                                for (let k = 0; k < prosumers.length; k++) {
-                                    if (users[i].username === prosumers[k]._id) {
-                                        formattedUsers.prosumers.name[nmbrProsumers] = prosumers[k]._id
-                                        formattedUsers.prosumers.sell_block[nmbrProsumers] = prosumers[k].sell_block
-                                        if (users[i].logged_in) {
-                                            formattedUsers.prosumers.logged_in[nmbrProsumers] = users[i].logged_in
-                                        } else {
-                                            formattedUsers.prosumers.logged_in[nmbrProsumers] = false;
-                                        }
-                                        nmbrProsumers++;
-                                    }
-                                }
-                            }
-                            res.render('user_overview', {ssn: req.session, statuses: formattedUsers});
-
-                        });
-                    });
-                });
-            });
-        } else {
+    formattedUserJSON(req, function (formattedUsers) {
+        if (formattedUsers === "Error not logged in") {
+            res.render('user_overview', {ssn: "Login"});
+        } else if (formattedUsers === "Error not logged in") {
             res.render('user_overview', {ssn: req.session});
+        } else {
+            res.render('user_overview', {ssn: req.session, statuses: formattedUsers});
         }
-    } else {
-        res.render('user_overview', {ssn: "Login"});
-    }
+    })
 });
+
+app.get('/user_overview_ajax', (req, res) => {
+    formattedUserJSON(req, function (formattedUsers) {
+        let consumerList = ""
+        for (let i = 0; i < formattedUsers.consumers.name.length; i++) {
+            consumerList += "<li class=\"list-group-item\">"
+            consumerList += "<button name=\"consumer_username\" type=\"submit\" class=\"btn btn-link\"" +
+                "value=\"" + formattedUsers.consumers.name[i] + "\">" + formattedUsers.consumers.name[i] + "</button>";
+            if (formattedUsers.consumers.logged_in[i]) {
+                consumerList += "<span class=\"badge badge-primary badge-pill\">Logged in</span>"
+            } else {
+                consumerList += "<span class=\"badge badge-secondary badge-pill\">Logged out</span>"
+            }
+            consumerList += "</li>"
+        }
+        let prosumerList = ""
+        for (let i = 0; i < formattedUsers.prosumers.name.length; i++) {
+            prosumerList += "<li class=\"list-group-item\">"
+            prosumerList += "<button name=\"prosumer_username\" type=\"submit\" class=\"btn btn-link\"" +
+                "value=\"" + formattedUsers.prosumers.name[i] + "\">" + formattedUsers.prosumers.name[i] + "</button>";
+            if (formattedUsers.prosumers.logged_in[i]) {
+                prosumerList += "<span class=\"badge badge-primary badge-pill\">Logged in</span>"
+            } else {
+                prosumerList += "<span class=\"badge badge-secondary badge-pill\">Logged out</span>"
+            }
+            if (parseInt(formattedUsers.prosumers.sell_block[i], 10) === 0) {
+                prosumerList += "<button name=\"block_prosumer_username\" class=\"btn btn-danger\" type=\"submit\" " +
+                    "value=\"" + formattedUsers.prosumers.name[i] + "\">Block</button>"
+            } else {
+                prosumerList += "User is blocked from selling for: " + formattedUsers.prosumers.sell_block[i] + "  seconds"
+            }
+        }
+        res.send({"consumers": consumerList, "prosumers":prosumerList})
+    })
+})
 
 app.get('/login', (req, res) => {
     res.render('login', {});
@@ -626,7 +673,11 @@ app.post('/update_details', function (req, res) {
                                     }
                                 }
                                 db.collection("users").updateOne({"username": req.body.old_username}, {
-                                    $set: {"name": req.body.name, "username": req.body.username, "email": req.body.email}
+                                    $set: {
+                                        "name": req.body.name,
+                                        "username": req.body.username,
+                                        "email": req.body.email
+                                    }
                                 }).catch((error) => {
                                     console.error(error);
                                 });
