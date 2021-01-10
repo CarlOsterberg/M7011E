@@ -74,9 +74,15 @@ setInterval(function () {
                                 let self_prod = false;
                                 let blackout = false;
                                 if (netto > 0) {
-                                    battery += netto * (prosumers[j].battery_sell / 100)
-                                    market_sell += netto * (1 - prosumers[j].battery_sell / 100);
-                                    self_prod = true;
+                                    if (prosumers[j].sell_block === 0 ) {
+                                        battery += netto * (prosumers[j].battery_sell / 100)
+                                        market_sell += netto * (1 - prosumers[j].battery_sell / 100);
+                                        self_prod = true;
+                                    }
+                                    else {
+                                        battery += netto
+                                        self_prod = true;
+                                    }
                                     if (battery > 1000) {
                                         market_sell += battery - 1000;
                                         battery = 1000;
@@ -99,7 +105,6 @@ setInterval(function () {
                                         battery = 0;
                                     }
                                 }
-                                //market_demand += q_d[j];
                                 db.collection("prosumers").updateOne({_id: prosumers[j]._id},
                                     {
                                         $set: {

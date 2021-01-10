@@ -101,6 +101,7 @@ function updateDisplayVals(req, callback) {
                         req.session.battery_sell = result[0].battery_sell
                         req.session.consumption = result[0].consumption
                         req.session.blackout = result[0].blackout
+                        req.session.sell_block = result[0].sell_block
                     } else if (role === "managers") {
                         req.session.production = result[0].production
                         req.session.battery = result[0].battery

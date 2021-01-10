@@ -13,7 +13,7 @@
         <h1 class="mt-5">User statuses</h1>
         <h5 class="mt-3">Current consumers</h5>
         <form class="lead" method="post" action="/manager_inspection">
-            <ul class="list-group list-group-flush">
+            <ul class="list-group list-group-flush" id="consumers">
                 <% for (let i = 0;i < statuses.consumers.name.length;i++) {
                 %>
                 <li class="list-group-item">
@@ -39,7 +39,7 @@
                 <input name="block_time" type="number" class="form-control" aria-label="Small"
                        aria-describedby="inputGroup-sizing-sm" min="10" max="100">
             </div>
-            <ul class="list-group list-group-flush">
+            <ul class="list-group list-group-flush" id="prosumers">
                 <% for (let i = 0;i < statuses.prosumers.name.length;i++) {
                 %>
                 <li class="list-group-item">
