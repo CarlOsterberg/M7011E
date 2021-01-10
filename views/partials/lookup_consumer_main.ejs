@@ -1,0 +1,44 @@
+<body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+<div class="container">
+    <div class="float-child" style="float: left; overflow: hidden;">
+        <h1 class="mt-5">Overview for consumer: <span id="user"><%- ssn._id %></span></h1>
+        <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+        <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
+    </div>
+    <div class="float-child" style="float: right; overflow: hidden;">
+        <form class="form-signin" action="/update_details" method="post">
+            <h1 class="mt-5">Details</h1>
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Name</span>
+                </div>
+                <input name="name" required type="text" class="form-control" aria-label="Username"
+                       aria-describedby="basic-addon1" value="<%= ssn.name %>">
+            </div>
+
+            <div class="input-group mb-3">
+                <input name="username" required type="text" class="form-control" aria-label="Recipient's username"
+                       aria-describedby="basic-addon2" value="<%= ssn._id %>">
+                <div class="input-group-append">
+                    <span class="input-group-text" id="basic-addon2">Username</span>
+                </div>
+            </div>
+
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Email</span>
+                </div>
+                <input name="email" required type="email" class="form-control" aria-label="Username"
+                       aria-describedby="basic-addon1" value="<%= ssn.email %>">
+            </div>
+
+            <button name="old_username" type="submit" class="btn btn-primary btn-lg btn-block" value="<%- ssn._id %>">
+                Change user details
+            </button>
+            <button name="delete_username" type="submit" class="btn btn-secondary btn-lg btn-block" value="<%- ssn._id %>">Delete user</button>
+        </form>
+    </div>
+
+</div>
+</body>
