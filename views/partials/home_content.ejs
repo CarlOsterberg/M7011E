@@ -51,7 +51,15 @@
                                 <input type="range" class="form-control-range" id="pp_ratio" value="<%- ssn.ratio %>">
                                 <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust buffer/market ratio">
                             </form>
-
+                            <form class="form-signin" id="price_form">
+                                <h5 class="mt-5">Manually set the price to a desired value</h5>
+                                <input type="number" id="manual_price" class="form-control">
+                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Set price">
+                            </form>
+                            <form class="form-signin" id="price_form_recommended">
+                                <h5 class="mt-5">Manually set the price to a desired value</h5>
+                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Set price to follow simulator">
+                            </form>
                         </body>
                     </div>
                 </div>

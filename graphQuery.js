@@ -36,7 +36,7 @@ function APIquery(query, callback) {
     post_req.end();
 }
 
-//resetDbValues()
+resetDbValues()
 
 console.log("Performing queries on API hosted on: " + host + ":" + port + path);
 try {
@@ -163,7 +163,7 @@ try {
                                 db.collection("wind").updateOne({_id: "wind"}, {
                                     $set: {
                                         "speed": wind, "market_demand": market_demand,
-                                        "market_sell": market_sell, "price": 2.17, "alert": alert
+                                        "market_sell": market_sell, "alert": alert
                                     }
                                 }).then(() => {
                                     client.close()
@@ -188,7 +188,8 @@ function resetDbValues() {
         db.collection("prosumers").updateMany({},{$set:proUpdate})
         let manUpdate = {"consumption": 0, "production": 0, "battery": 0, "blackouts": 0}
         db.collection("managers").updateMany({}, {$set:manUpdate})
-        let generalUpdate = {"speed": 7, "market_demand": 0, "market_sell": 0, "price": 0, "alert":false}
+        let generalUpdate = {"speed": 7, "market_demand": 0, "market_sell": 0, "price": 0, "alert":false, "blackouts": 0,
+            "pp_status": "stopped", "ratio": "0", "recommended_price": 0 }
         db.collection("wind").updateMany({},{$set:generalUpdate})
     })
 }
