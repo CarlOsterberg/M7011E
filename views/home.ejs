@@ -90,7 +90,6 @@
                 $('#price').html(data.price);
                 $('#market_demand').html(data.market_demand);
                 $('#market_sell').html(data.market_sell);
-                $('#blackouts').html(data.blackouts);
                 if (data.role === "Prosumer" && data.sell_block>0) {
                     $('#sell_block').css('display','inherit');
                     $('#sell_block').html("Amount of time blocked from selling to power plant: " + data.sell_block)
@@ -112,8 +111,23 @@
                         $('#alert').css('display','none');
                     }
                 }
+                if (data.role === "Manager") {
+                    $('#pp_status').html(data.pp_status)
+                    $.get('/get_blackouts', function (data) {
+                        $('#blackouts').html(data.nmbr_blackouts);
+                        if (data.prosumer_blackouts !== "") {
+                            $('#b_p').css('display','inherit');
+                            $('#blackouts_prosumers').html(data.prosumer_blackouts)
+                        }
+                        else {
+                            $('#b_p').css('display','none');
+                        }
+
+                    })
+                }
             }
         })
+        
     }, 1000);
     $("#form").submit(function(){
         $.post("/ajax",

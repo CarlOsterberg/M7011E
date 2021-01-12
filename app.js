@@ -205,7 +205,8 @@ function updateDisplayVals(req, callback) {
                                 req.session.production = result[0].production
                                 req.session.battery = result[0].battery
                                 req.session.consumption = result[0].consumption
-                                req.session.blackouts = result[0].blackouts;
+                                req.session.blackouts = result[0].blackouts
+                                req.session.pp_status = result[0].pp_status
                             }
                             client.close();
                             callback(true);
@@ -342,7 +343,6 @@ app.get('/login_error', (req, res) => {
     res.render('login_error', {});
 });
 
-
 app.post('/personal', (req, res) => {
     upload(req, res, (err) => {
         if (err) {
@@ -383,6 +383,7 @@ app.post('/personal', (req, res) => {
         }
     });
 });
+
 app.post('/createUser', function (req, res) {
     if (!req.session.user) {
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
@@ -516,6 +517,7 @@ app.post('/login', function (req, res) {
                                     req.session.battery_sell = result3[0].battery_sell;
                                     req.session.battery_use = result3[0].battery_use;
                                     req.session.blackout = result3[0].blackout;
+                                    req.session.pp_status = result3[0].pp_status;
                                     client.close();
                                     return res.redirect('/home');
                                 } else {
@@ -545,11 +547,10 @@ app.post('/login', function (req, res) {
                                     req.session.battery = result3[0].battery;
                                     req.session.battery_sell = result3[0].battery_sell;
                                     req.session.battery_use = result3[0].battery_use;
-                                    req.session.blackouts = result3[0].blackouts;
                                     client.close();
                                     return res.redirect('/home');
                                 } else {
-                                    console.log("cant find prosumer db");
+                                    console.log("cant find managers db");
                                 }
                             });
                         } else {
@@ -615,15 +616,63 @@ app.post('/ajax', function (req, res) {
                 return res.json({"use": req.body.use, "storage": req.body.storage});
             });
         } else if (role === "managers") {
-            setTimeout(function () {
-                MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName);
+                db.collection("managers").find().toArray(function (err, managers) {
                     if (err) return console.log(err)
-                    let db = client.db(dbName);
-                    db.collection("managers").updateMany({}, {$set: {"production": req.body.pp_production}});
-                    req.session.production = req.body.pp_production;
-                    return res.json({"pp_production": req.body.pp_production});
-                });
-            }, 30000);
+                    if (managers[0].pp_status === "running" || managers[0].pp_status === "stopped") {
+                        if (managers[0].production === 0 && req.body.pp_production > 0) {
+                            db.collection("managers").updateMany({}, {$set: {"pp_status": "starting"}}).then(() => {
+                                client.close()
+                            });
+                        } else if (managers[0].production > 0 && req.body.pp_production === 0) {
+                            db.collection("managers").updateMany({}, {$set: {"pp_status": "stopping"}}).then(() => {
+                                client.close()
+                            });
+                        } else if (managers[0].production < req.body.pp_production) {
+                            db.collection("managers").updateMany({}, {$set: {"pp_status": "increasing"}}).then(() => {
+                                client.close()
+                            });
+                        } else if (managers[0].production > req.body.pp_production) {
+                            db.collection("managers").updateMany({}, {$set: {"pp_status": "decreasing"}}).then(() => {
+                                client.close()
+                            });
+                        } else {
+                            client.close()
+                        }
+                        setTimeout(function () {
+                            MongoClient.connect(url, {
+                                useNewUrlParser: true,
+                                useUnifiedTopology: true
+                            }, (err, client) => {
+                                if (err) return console.log(err)
+                                let db = client.db(dbName);
+                                let query = ""
+                                if (req.body.pp_production == 0) {
+                                    query = {
+                                        "production": req.body.pp_production,
+                                        "pp_status": "stopped"
+                                    }
+                                }
+                                else {
+                                    query = {
+                                        "production": req.body.pp_production,
+                                        "pp_status": "running"
+                                    }
+                                }
+                                db.collection("managers").updateMany({}, {
+                                    $set: query
+                                }).then(() => {
+                                    client.close()
+                                });
+                                req.session.production = req.body.pp_production;
+                                return res.json({"pp_production": req.body.pp_production});
+                            });
+                        }, 30000);
+                    }
+                })
+            })
         } else {
             return res.json({});
         }
@@ -738,81 +787,88 @@ app.post('/update_details', function (req, res) {
                 MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                     if (err) return console.log(err)
                     let db = client.db(dbName)
-                    db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
+                    db.collection("users").find({"username": req.body.username}).toArray(function (err, control_user) {
                         if (err) return console.log(err)
-                        if (user[0].logged_in) {
-                            return res.send("Selected user is logged in, changes can only be made when the user is logged out.")
-                        }
-                        req.body.role = user[0].role
-                        if (req.body.old_username !== req.body.username) {
-                            role = ""
-                            switch (req.body.role) {
-                                case "Consumer":
-                                    role = "consumers"
-                                    break;
-                                case "Prosumer":
-                                    role = "prosumers"
-                                    break;
-                                default:
-                                    console.log("Something went wrong")
-                                    res.send("Something went wrong!")
-                            }
-                            db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
-                                let old = query_res[0]
-                                if (role === "prosumers") {
-                                    if (parseInt(old.sell_block, 10) > 0) {
-                                        return res.send("Cannot change details while user is sell blocked");
-                                    }
+                        if (control_user.length === 0) {
+                            db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
+                                if (err) return console.log(err)
+                                if (user[0].logged_in) {
+                                    return res.send("Selected user is logged in, changes can only be made when the user is logged out.")
                                 }
-                                db.collection("users").updateOne({"username": req.body.old_username}, {
-                                    $set: {
-                                        "name": req.body.name,
-                                        "username": req.body.username,
-                                        "email": req.body.email
+                                req.body.role = user[0].role
+                                if (req.body.old_username !== req.body.username) {
+                                    role = ""
+                                    switch (req.body.role) {
+                                        case "Consumer":
+                                            role = "consumers"
+                                            break;
+                                        case "Prosumer":
+                                            role = "prosumers"
+                                            break;
+                                        default:
+                                            console.log("Something went wrong")
+                                            res.send("Something went wrong!")
                                     }
-                                }).catch((error) => {
-                                    console.error(error);
-                                });
-
-                                db.collection(role).deleteOne({"_id": req.body.old_username}, function (err, writeRes) {
-                                    if (role === "consumers") {
-                                        db.collection(role).insertOne({
-                                            "_id": req.body.username,
-                                            "consumption": old.consumption,
-                                            "blackout": old.blackout
-                                        }, function (err, writeRes) {
-                                            if (err) {
-                                                return console.log(err)
+                                    db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
+                                        let old = query_res[0]
+                                        if (role === "prosumers") {
+                                            if (parseInt(old.sell_block, 10) > 0) {
+                                                return res.send("Cannot change details while user is sell blocked");
                                             }
-                                            if (writeRes.insertedCount !== 1) {
-                                                res.send("Something went wrong when inserting")
+                                        }
+                                        db.collection("users").updateOne({"username": req.body.old_username}, {
+                                            $set: {
+                                                "name": req.body.name,
+                                                "username": req.body.username,
+                                                "email": req.body.email
                                             }
-                                            client.close();
-                                            res.redirect('/home')
+                                        }).catch((error) => {
+                                            console.error(error);
                                         });
-                                    } else {
-                                        db.collection(role).insertOne({
-                                            "_id": req.body.username,
-                                            "consumption": old.consumption,
-                                            "production": old.production,
-                                            "battery": old.battery,
-                                            "battery_use": old.battery_use,
-                                            "battery_sell": old.battery_sell,
-                                            "blackout": old.blackout,
-                                            "sell_block": old.sell_block
-                                        }, function (err, writeRes) {
-                                            if (err) {
-                                                return console.log(err)
+                                        db.collection(role).deleteOne({"_id": req.body.old_username}, function (err, writeRes) {
+                                            if (role === "consumers") {
+                                                db.collection(role).insertOne({
+                                                    "_id": req.body.username,
+                                                    "consumption": old.consumption,
+                                                    "blackout": old.blackout
+                                                }, function (err, writeRes) {
+                                                    if (err) {
+                                                        return console.log(err)
+                                                    }
+                                                    if (writeRes.insertedCount !== 1) {
+                                                        res.send("Something went wrong when inserting")
+                                                    }
+                                                    client.close();
+                                                    res.redirect('/home')
+                                                });
+                                            } else {
+                                                db.collection(role).insertOne({
+                                                    "_id": req.body.username,
+                                                    "consumption": old.consumption,
+                                                    "production": old.production,
+                                                    "battery": old.battery,
+                                                    "battery_use": old.battery_use,
+                                                    "battery_sell": old.battery_sell,
+                                                    "blackout": old.blackout,
+                                                    "sell_block": old.sell_block
+                                                }, function (err, writeRes) {
+                                                    if (err) {
+                                                        return console.log(err)
+                                                    }
+                                                    if (writeRes.insertedCount !== 1) {
+                                                        res.send("Something went wrong when inserting")
+                                                    }
+                                                    client.close();
+                                                    res.redirect('/home')
+                                                });
                                             }
-                                            if (writeRes.insertedCount !== 1) {
-                                                res.send("Something went wrong when inserting")
-                                            }
-                                            client.close();
-                                            res.redirect('/home')
-                                        });
-                                    }
-                                })
+                                        })
+                                    })
+                                }
                             })
+                        }
+                        else {
+                            return res.send("Username already taken, choose another")
                         }
                     })
                 })
@@ -859,6 +915,7 @@ app.post('/update_details', function (req, res) {
         }
     }
 })
+
 
 app.post('/update_personal', function (req, res) {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
@@ -1130,6 +1187,37 @@ app.post('/update_val_pers', function (req, res) {
     }
 });
 
+app.get('/get_blackouts', function (req, res) {
+    if (req.session.user) {
+        if (req.session.role === "Manager") {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName)
+                db.collection("consumers").find().toArray(function (err, consumers) {
+                    if (err) return console.log(err)
+                    db.collection("prosumers").find().toArray(function (err, prosumers) {
+                        if (err) return console.log(err)
+                        client.close()
+                        let nmbr_blackouts = 0
+                        let prosumer_blackouts = ""
+                        for (let i = 0; i < consumers.length; i++) {
+                            if (consumers[i].blackout) {
+                                nmbr_blackouts++
+                            }
+                        }
+                        for (let i = 0; i < prosumers.length; i++) {
+                            if (prosumers[i].blackout) {
+                                nmbr_blackouts++
+                                prosumer_blackouts += "<li>" + prosumers[i]._id + "</li>"
+                            }
+                        }
+                        res.send({"nmbr_blackouts": nmbr_blackouts, "prosumer_blackouts": prosumer_blackouts})
+                    })
+                })
+            })
+        }
+    }
+})
 
 app.listen(3000, function () {
     console.log('Listening on http://localhost:3000');

@@ -36,7 +36,8 @@ function APIquery(query, callback) {
     post_req.end();
 }
 
-resetDbValues()
+//resetDbValues()
+
 console.log("Performing queries on API hosted on: " + host + ":" + port + path);
 
 setInterval(function () {
@@ -59,46 +60,40 @@ setInterval(function () {
                             let production = d.data["production"];
                             let market_demand = 0;
                             let market_sell = 0;
-                            let alert = d.data["alert"];
 
                             /** PP PRODUCTION */
                             let pp_production = Number(managers[0].production);
                             let old_charge = managers[0].battery;
                             let con = q_d[consumers.length + prosumers.length]
                             let pp_battery_charge = (old_charge + pp_production - con);
-                            let nmbr_blackouts = 0;
 
                             for (let j = 0; j < prosumers.length; j++) {
                                 let netto = production - q_d[j]
                                 let battery = prosumers[j].battery
-                                let self_prod = false;
                                 let blackout = false;
                                 if (netto > 0) {
                                     if (prosumers[j].sell_block === 0 ) {
                                         battery += netto * (prosumers[j].battery_sell / 100)
                                         market_sell += netto * (1 - prosumers[j].battery_sell / 100);
-                                        self_prod = true;
                                     }
                                     else {
                                         battery += netto
-                                        self_prod = true;
                                     }
                                     if (battery > 1000) {
                                         market_sell += battery - 1000;
                                         battery = 1000;
                                     }
                                 } else {
-                                    if (battery + netto * (prosumers[j].battery_use / 100) > 0 && pp_battery_charge - market_demand - netto * (1 - prosumers[j].battery_use / 100) > 0) {
+                                    if (battery + netto * (prosumers[j].battery_use / 100) >= 0 && pp_battery_charge - market_demand + netto * (1 - prosumers[j].battery_use / 100) >= 0) {
                                         battery += netto * (prosumers[j].battery_use / 100);
                                         market_demand -= netto * (1 - prosumers[j].battery_use / 100);
-                                    } else if (battery + netto > 0) {
+                                    }
+                                    else if (battery + netto > 0) {
                                         battery += netto
-                                    } else if (pp_battery_charge - market_demand - netto) {
-                                        market_demand -= netto
-                                    } else {
-                                        battery += netto * (prosumers[j].battery_use / 100);
-                                        market_demand -= netto * (1 - prosumers[j].battery_use / 100);
-                                        nmbr_blackouts += 1;
+                                    }
+                                    else {
+                                        battery += netto;
+                                        market_demand -= battery;
                                         blackout = true;
                                     }
                                     if (battery < 0) {
@@ -120,7 +115,6 @@ setInterval(function () {
                                 let blackout = false;
                                 market_demand += q_d[prosumers.length + i - 1];
                                 if (pp_battery_charge + market_sell - market_demand < 0) {
-                                    nmbr_blackouts += 1;
                                     blackout = true;
                                 }
                                 db.collection("consumers").updateOne({_id: consumers[i]._id},
@@ -149,8 +143,7 @@ setInterval(function () {
                                 $set: {
                                     "consumption": q_d[consumers.length + prosumers.length],
                                     "production": pp_production,
-                                    "battery": pp_battery_charge,
-                                    "blackouts": nmbr_blackouts
+                                    "battery": pp_battery_charge
                                 }
                             }).catch((error) => {
                                 console.error(error);
@@ -169,7 +162,7 @@ setInterval(function () {
             });
         });
     });
-}, 3000);
+}, 1000);
 
 function resetDbValues() {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, function (err,client) {
