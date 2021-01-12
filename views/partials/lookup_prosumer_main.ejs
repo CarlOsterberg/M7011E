@@ -38,6 +38,13 @@
                 <input name="email" required type="email" class="form-control" aria-label="Username" aria-describedby="basic-addon1" value="<%= ssn.email %>">
             </div>
 
+            <div class="input-group mb-3">
+                <input name="password" type="password" id="password" class="form-control">
+                <div class="input-group-append">
+                    <span class="input-group-text" id="basic-addon2">New Password</span>
+                </div>
+            </div>
+
             <button name="old_username" type="submit" class="btn btn-primary btn-lg btn-block" value="<%- ssn._id %>">Change user details</button>
             <button name="delete_username" type="submit" class="btn btn-secondary btn-lg btn-block" value="<%- ssn._id %>">Delete user</button>
         </form>
