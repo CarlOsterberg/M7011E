@@ -25,7 +25,6 @@ const schema = buildSchema(`
 
 // The root provides a resolver function for each API endpoint
 const Query = {
-    price: () => simulator.priceObj.currentPrice,
     wph: () => {
         currentdate = new Date();
         currentHour = currentdate.getSeconds();
@@ -46,15 +45,14 @@ const Query = {
     },
     wpd: () => simulator.windObj.avgWindDay,
     demand: ({numUsers}) => {
-        let vals = [];
-        for (let i = 0;i<numUsers;i++){
-            simulator.consumptionObj.generateAvgConsumption();
-            vals.push(simulator.consumptionObj.consumption);
-        }
-        return vals;
+        return simulator.consumptionObj.generateMultipleHouses(numUsers)
     },
     production: () => {
         return simulator.productionObj.prod;
+    },
+    price: () => {
+        simulator.priceObj.setPrice(simulator.consumptionObj.consumption_all)
+        return simulator.priceObj.currentPrice
     },
 }
 
