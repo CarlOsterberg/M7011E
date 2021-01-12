@@ -24,8 +24,8 @@ const deleteFile = (file) => {
 // Set The Storage Engine
 const storage = multer.diskStorage({
     destination: './views/partials/public/uploads/',
-    filename: function (req, file, cb) {
-        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    filename: function (req, file, callback) {
+        callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
 
@@ -39,19 +39,15 @@ const upload = multer({
 }).single('image');
 
 // Check File Type
-function checkFileType(file, cb) {
-    //correct file path
+function checkFileType(file, callback) {
     // Allowed ext
     const filetypes = /jpeg|jpg|png|gif/;
     // Check ext
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    // Check mime
-    const mimetype = filetypes.test(file.mimetype);
-
-    if (mimetype && extname) {
-        return cb(null, true);
+    const ext = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (ext) {
+        return callback(null, true);
     } else {
-        cb('Error: Images Only!');
+        callback('Error: Not an image!');
     }
 }
 
@@ -158,6 +154,7 @@ function blockLoop(user) {
         })
     }, 1000)
 }
+
 function updateDisplayVals(req, callback) {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
         if (err) return console.log(err)
@@ -189,6 +186,8 @@ function updateDisplayVals(req, callback) {
                 if (err) return console.log(err)
                 if (result) {
                     req.session.image = result[0].image
+                    req.session.name = result[0].name
+                    req.session.email = result[0].email
                     db.collection(role).find({_id: req.session.user}).toArray(function (err, result) {
                         if (err) return console.log(err)
                         if (result) {
@@ -300,7 +299,7 @@ app.get('/user_overview_ajax', (req, res) => {
                 prosumerList += "User is blocked from selling for: " + formattedUsers.prosumers.sell_block[i] + "  seconds"
             }
         }
-        res.send({"consumers": consumerList, "prosumers":prosumerList})
+        res.send({"consumers": consumerList, "prosumers": prosumerList})
     })
 })
 
@@ -367,8 +366,8 @@ app.post('/personal', (req, res) => {
                     let query = {username: req.session.user}
                     db.collection("users").find(query).toArray(function (err, result) {
                         if (err) return console.log(err)
-                        if(result[0].image!== "partials/public/uploads/harry.png" && result[0].image!=="partials/public/uploads/default.jpg" && result[0].image!=="partials/public/uploads/manager_default.png") {
-                            deleteFile("views/"+result[0].image)
+                        if (result[0].image !== "partials/public/uploads/harry.png" && result[0].image !== "partials/public/uploads/default.jpg" && result[0].image !== "partials/public/uploads/manager_default.png") {
+                            deleteFile("views/" + result[0].image)
                         }
                         db.collection("users").updateOne({"username": req.session.user},
                             {$set: {"image": displayPath}});
@@ -412,7 +411,7 @@ app.post('/createUser', function (req, res) {
                                 password: hash,
                                 email: req.body.email,
                                 role: roles,
-                                logged_in: false
+                                logged_in: false,
                                 image: imagepath
                             }
                             db.collection("users").insertOne(user, function (err, result) {
@@ -774,6 +773,7 @@ app.post('/update_details', function (req, res) {
                                 }).catch((error) => {
                                     console.error(error);
                                 });
+
                                 db.collection(role).deleteOne({"_id": req.body.old_username}, function (err, writeRes) {
                                     if (role === "consumers") {
                                         db.collection(role).insertOne({
@@ -859,6 +859,277 @@ app.post('/update_details', function (req, res) {
         }
     }
 })
+
+app.post('/update_personal', function (req, res) {
+    MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+        if (err) return console.log(err)
+        let db = client.db(dbName)
+        db.collection("users").find({"username": req.session.user}).toArray(function (err, result) {
+            if (err) return console.log(err)
+            let pw = result[0].password
+            res.render('update_personal', {ssn: req.session});
+        });
+    });
+});
+
+app.post('/update_val_pers', function (req, res) {
+    if (req.session.user) {
+        if (req.body.old_username === req.body.username) {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName)
+                db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
+                    if (err) return console.log(err)
+                    //check old password input is correct
+                    bcrypt.compare(req.body.old_password, user[0].password).then(function (result2) {
+                        if (result2) {
+                            //check if user wants new password
+                            console.log(req.body.new_password)
+                            if (req.body.new_password !== "") {
+                                //hash new password
+                                bcrypt.genSalt(10, function (err, salt) {
+                                    bcrypt.hash(req.body.new_password, salt, function (err, hash) {
+                                        bcrypt.compare(req.body.cont_new_password, hash).then(function (result3) {
+                                            if (result3) {
+                                                db.collection("users").updateOne({"username": req.body.username}, {
+                                                    $set: {
+                                                        "name": req.body.name,
+                                                        "username": req.body.username,
+                                                        "email": req.body.email,
+                                                        "password": hash
+                                                    }
+                                                }).catch((error) => {
+                                                    console.error(error);
+                                                });
+                                                updateDisplayVals(req, function (status) {
+                                                    if (status) {
+                                                        res.redirect('/personal')
+                                                    } else {
+                                                        console.log("Something went wrong")
+                                                    }
+                                                });
+
+                                            } else {
+                                                return res.render('update_error');
+                                            }
+                                        });
+                                    });
+                                });
+                            } else {
+                                db.collection("users").updateOne({"username": req.body.username}, {
+                                    $set: {
+                                        "name": req.body.name,
+                                        "username": req.body.username,
+                                        "email": req.body.email
+                                    }
+                                }).catch((error) => {
+                                    console.error(error);
+                                });
+                                updateDisplayVals(req, function (status) {
+                                    if (status) {
+                                        res.redirect('/personal')
+                                    } else {
+                                        console.log("Something went wrong")
+                                    }
+                                });
+                            }
+                        } else {
+                            return res.render('update_error');
+                        }
+
+                    });
+                });
+            });
+        } else {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName)
+                db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
+                    if (err) return console.log(err)
+                    //check old password input is correct
+                    bcrypt.compare(req.body.old_password, user[0].password).then(function (result2) {
+                        if (result2) {
+                            //check if user wants new password
+                            console.log(req.body.new_password)
+                            if (req.body.new_password !== "") {
+                                //hash new password
+                                bcrypt.genSalt(10, function (err, salt) {
+                                    bcrypt.hash(req.body.new_password, salt, function (err, hash) {
+                                        bcrypt.compare(req.body.cont_new_password, hash).then(function (result3) {
+                                            if (result3) {
+                                                req.session.user = req.body.username
+                                                req.session.name = req.body.name
+                                                req.body.role = user[0].role
+                                                role = ""
+                                                switch (req.body.role) {
+                                                    case "Consumer":
+                                                        role = "consumers"
+                                                        break;
+                                                    case "Prosumer":
+                                                        role = "prosumers"
+                                                        break;
+                                                    case "Manager":
+                                                        role = "managers"
+                                                        break;
+                                                    default:
+                                                        console.log("Something went wrong")
+                                                        res.send("Something went wrong!")
+                                                }
+                                                db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
+                                                    let old = query_res[0]
+                                                    db.collection("users").updateOne({"username": req.body.old_username}, {
+                                                        $set: {
+                                                            "name": req.body.name,
+                                                            "username": req.body.username,
+                                                            "email": req.body.email,
+                                                            "password": hash
+                                                        }
+                                                    }).catch((error) => {
+                                                        console.error(error);
+                                                    });
+                                                    db.collection(role).deleteOne({"_id": req.body.old_username}, function (err, writeRes) {
+                                                        if (role === "consumers") {
+                                                            db.collection(role).insertOne({
+                                                                "_id": req.body.username,
+                                                                "consumption": old.consumption,
+                                                                "blackout": old.blackout
+                                                            }, function (err, writeRes) {
+                                                                if (err) {
+                                                                    return console.log(err)
+                                                                }
+                                                            });
+                                                        } else if (role === "prosumers") {
+                                                            db.collection(role).insertOne({
+                                                                "_id": req.body.username,
+                                                                "consumption": old.consumption,
+                                                                "production": old.production,
+                                                                "battery": old.battery,
+                                                                "battery_use": old.battery_use,
+                                                                "battery_sell": old.battery_sell,
+                                                                "blackout": old.blackout,
+                                                                "sell_block": old.sell_block
+                                                            }, function (err, writeRes) {
+                                                                if (err) {
+                                                                    return console.log(err)
+                                                                }
+                                                            });
+                                                        } else {
+                                                            db.collection(role).insertOne({
+                                                                "_id": req.body.username,
+                                                                "consumption": old.consumption,
+                                                                "production": old.production,
+                                                                "battery": old.battery,
+                                                                "blackouts": old.blackouts
+                                                            }, function (err, writeRes) {
+                                                                if (err) {
+                                                                    return console.log(err)
+                                                                }
+                                                            });
+                                                        }
+                                                    })
+                                                    updateDisplayVals(req, function (status) {
+                                                        if (status) {
+                                                            res.redirect('/personal')
+                                                        } else {
+                                                            console.log("Something went wrong")
+                                                        }
+                                                    });
+                                                })
+                                            } else {
+                                                return res.render('update_error');
+                                            }
+                                        });
+                                    });
+                                });
+                            } else {
+                                req.session.user = req.body.username
+                                req.body.role = user[0].role
+                                role = ""
+                                switch (req.body.role) {
+                                    case "Consumer":
+                                        role = "consumers"
+                                        break;
+                                    case "Prosumer":
+                                        role = "prosumers"
+                                        break;
+                                    case "Manager":
+                                        role = "managers"
+                                        break;
+                                    default:
+                                        console.log("Something went wrong")
+                                        res.send("Something went wrong!")
+                                }
+                                db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
+                                    let old = query_res[0]
+                                    db.collection("users").updateOne({"username": req.body.old_username}, {
+                                        $set: {
+                                            "name": req.body.name,
+                                            "username": req.body.username,
+                                            "email": req.body.email
+                                        }
+                                    }).catch((error) => {
+                                        console.error(error);
+                                    });
+                                    db.collection(role).deleteOne({"_id": req.body.old_username}, function (err, writeRes) {
+                                        if (role === "consumers") {
+                                            db.collection(role).insertOne({
+                                                "_id": req.body.username,
+                                                "consumption": old.consumption,
+                                                "blackout": old.blackout
+                                            }, function (err, writeRes) {
+                                                if (err) {
+                                                    return console.log(err)
+                                                }
+                                            });
+                                        } else if (role === "prosumers") {
+                                            db.collection(role).insertOne({
+                                                "_id": req.body.username,
+                                                "consumption": old.consumption,
+                                                "production": old.production,
+                                                "battery": old.battery,
+                                                "battery_use": old.battery_use,
+                                                "battery_sell": old.battery_sell,
+                                                "blackout": old.blackout,
+                                                "sell_block": old.sell_block
+                                            }, function (err, writeRes) {
+                                                if (err) {
+                                                    return console.log(err)
+                                                }
+                                            });
+                                        } else {
+                                            db.collection(role).insertOne({
+                                                "_id": req.body.username,
+                                                "consumption": old.consumption,
+                                                "production": old.production,
+                                                "battery": old.battery,
+                                                "blackouts": old.blackouts
+                                            }, function (err, writeRes) {
+                                                if (err) {
+                                                    return console.log(err)
+                                                }
+                                            });
+                                        }
+                                    })
+                                    updateDisplayVals(req, function (status) {
+                                        if (status) {
+                                            res.redirect('/personal')
+                                        } else {
+                                            console.log("Something went wrong")
+                                        }
+                                    });
+                                })
+                            }
+                        } else {
+                            return res.render('update_error');
+                        }
+
+                    });
+                });
+            });
+        }
+    }
+});
+
 
 app.listen(3000, function () {
     console.log('Listening on http://localhost:3000');

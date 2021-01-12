@@ -22,6 +22,9 @@
                         <h4 class="text-center">Username: <%= ssn.user %></h4>
                         <h4 class="text-center">Email: <%= ssn.email %></h4>
                         <h4 class="text-center">Role: <%= ssn.role %></h4>
+                        <form class="form-signin" action="/update_personal" method="post">
+                        <button name="update_personal" type="submit" class="btn btn-dark btn-lg btn-block">Change user details</button>
+                        </form>
                     </body>
                 </div>
             </div>
