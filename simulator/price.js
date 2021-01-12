@@ -4,11 +4,11 @@ module.exports = class Price {
         this.consumptionFactor = 0.04;
         this.setPrice(consumption, wph);
     }
-    setPrice(consumption, wph) {
+    setPrice(consumption) {
         //avg price = 2.15 kr / (kW/h)
-        this.generateWindPrice(wph);
+        //this.generateWindPrice(wph);
         this.generateDemandPrice(consumption);
-        this.currentPrice = this.demandPrice + this.windPrice;
+        this.currentPrice = this.demandPrice;
     }
     generateDemandPrice(consumption) {
         this.demandPrice = consumption * this.consumptionFactor;
