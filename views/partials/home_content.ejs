@@ -33,7 +33,8 @@
                         <h4>Market Demand: <span id="market_demand"><%- ssn.market_demand %></span> kWh</h4>
                         <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
                         <h4>Price per kWh: <span id="price"><%- ssn.price %></span> kr</h4>
-                        <h4>Blackouts: <span id="blackouts"><%- ssn.blackouts %></span> st</h4>
+                        <h4>Blackouts: <span id="blackouts">0</span> st</h4>
+                        <h4 id="b_p">Prosumer blackouts:<br><ul id="blackouts_prosumers"></ul></h4>
                     </div>
                     <div class="float-child" style="float: right; overflow: hidden;">
                         <body>
@@ -43,6 +44,7 @@
                                 <input name="pp_production" id="pp_production" class="form-control" value="<%- ssn.production %>" required="" autofocus="">
                                 <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
                                 <h7 class="mt-5">Obs! Changes takes a while to come to effect! (30 sec)</h7>
+                                <h4>Current power plant status: <span id="pp_status"><%- ssn.pp_status %></span></h4>
                             </form>
 
                         </body>
