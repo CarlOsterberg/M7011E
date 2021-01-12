@@ -63,10 +63,17 @@ setInterval(function () {
 
                             /** PP PRODUCTION */
                             let pp_production = Number(managers[0].production);
+                            let demand_production = pp_production * (1 - Number(managers[0].ratio)/100)
                             let old_charge = managers[0].battery;
-                            let con = q_d[consumers.length + prosumers.length]
-                            let pp_battery_charge = (old_charge + pp_production - con);
+                            /** Add the power plant demand to the market demand */
+                            market_demand += q_d[consumers.length + prosumers.length]
+                            /** Add the percent of production */
+                            let pp_battery_charge = (old_charge + pp_production * Number(managers[0].ratio)/100);
 
+                            /** If power plant is closed the the buffer gets used */
+                            if (managers[0].pp_status === "stopped" ) {
+                                demand_production = pp_battery_charge
+                            }
                             for (let j = 0; j < prosumers.length; j++) {
                                 let netto = production - q_d[j]
                                 let battery = prosumers[j].battery
@@ -84,7 +91,7 @@ setInterval(function () {
                                         battery = 1000;
                                     }
                                 } else {
-                                    if (battery + netto * (prosumers[j].battery_use / 100) >= 0 && pp_battery_charge - market_demand + netto * (1 - prosumers[j].battery_use / 100) >= 0) {
+                                    if (battery + netto * (prosumers[j].battery_use / 100) >= 0 && demand_production - market_demand + netto * (1 - prosumers[j].battery_use / 100) >= 0) {
                                         battery += netto * (prosumers[j].battery_use / 100);
                                         market_demand -= netto * (1 - prosumers[j].battery_use / 100);
                                     }
@@ -114,7 +121,7 @@ setInterval(function () {
                             for (let i = 0; i < consumers.length; i++) {
                                 let blackout = false;
                                 market_demand += q_d[prosumers.length + i - 1];
-                                if (pp_battery_charge + market_sell - market_demand < 0) {
+                                if (demand_production + market_sell - market_demand < 0) {
                                     blackout = true;
                                 }
                                 db.collection("consumers").updateOne({_id: consumers[i]._id},
@@ -128,7 +135,13 @@ setInterval(function () {
                                 });
                             }
                             /** db update managers and global variables*/
-                            pp_battery_charge += market_sell - market_demand;
+                            //demand_production = market_sell - market_demand + demand_production
+
+                            /** When power plant us using buffer, update buffer with the new values */
+                            if (managers[0].pp_status === "stopped" ) {
+                                pp_battery_charge = market_sell - market_demand + demand_production
+                            }
+
                             if (pp_battery_charge > 10000) {
                                 pp_battery_charge = 10000;
                             } else if (pp_battery_charge < 0) {

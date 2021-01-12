@@ -113,6 +113,8 @@
                 }
                 if (data.role === "Manager") {
                     $('#pp_status').html(data.pp_status)
+                    $('#pp_ratio').html(data.ratio);
+                    $('#pp_storage_ratio').html(data.ratio);
                     $.get('/get_blackouts', function (data) {
                         $('#blackouts').html(data.nmbr_blackouts);
                         if (data.prosumer_blackouts !== "") {
@@ -140,6 +142,17 @@
                 $('#use_display').html(data.use);
                 $('#storage_display').html(data.storage);
                 $('#production').html(data.pp_production);
+            });
+        return false;
+    });
+    $("#ratio_f").submit(function(){
+        $.post('/adjust_pp_ratio',
+            {
+                pp_ratio: $('#pp_ratio').val()
+            },
+            function(data, status){
+                $('#pp_ratio').html(data.ratio,10);
+                $('#pp_storage_ratio').html(data.ratio);
             });
         return false;
     });

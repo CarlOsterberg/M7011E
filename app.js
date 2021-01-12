@@ -209,6 +209,7 @@ function updateDisplayVals(req, callback) {
                                 req.session.consumption = result[0].consumption
                                 req.session.blackouts = result[0].blackouts
                                 req.session.pp_status = result[0].pp_status
+                                req.session.ratio = result[0].ratio
                             }
                             client.close();
                             callback(true);
@@ -549,6 +550,7 @@ app.post('/login', function (req, res) {
                                     req.session.battery = result3[0].battery;
                                     req.session.battery_sell = result3[0].battery_sell;
                                     req.session.battery_use = result3[0].battery_use;
+                                    req.session.ratio = result3[0].ratio
                                     client.close();
                                     return res.redirect('/home');
                                 } else {
@@ -624,11 +626,11 @@ app.post('/ajax', function (req, res) {
                 db.collection("managers").find().toArray(function (err, managers) {
                     if (err) return console.log(err)
                     if (managers[0].pp_status === "running" || managers[0].pp_status === "stopped") {
-                        if (managers[0].production === 0 && req.body.pp_production > 0) {
+                        if (managers[0].production == 0 && req.body.pp_production > 0) {
                             db.collection("managers").updateMany({}, {$set: {"pp_status": "starting"}}).then(() => {
                                 client.close()
                             });
-                        } else if (managers[0].production > 0 && req.body.pp_production === 0) {
+                        } else if (managers[0].production > 0 && req.body.pp_production == 0) {
                             db.collection("managers").updateMany({}, {$set: {"pp_status": "stopping"}}).then(() => {
                                 client.close()
                             });
@@ -671,7 +673,7 @@ app.post('/ajax', function (req, res) {
                                 req.session.production = req.body.pp_production;
                                 return res.json({"pp_production": req.body.pp_production});
                             });
-                        }, 30000);
+                        }, 1000);
                     }
                 })
             })
@@ -682,6 +684,23 @@ app.post('/ajax', function (req, res) {
         return res.json({});
     }
 });
+
+app.post('/adjust_pp_ratio', function (req,res) {
+    if (req.session.user) {
+        if (req.session.role === "Manager"){
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName);
+                db.collection("managers").updateMany({},{$set:{
+                    "ratio": req.body.pp_ratio
+                    }}).then(() => {
+                    client.close()
+                    })
+                    res.send({"ratio":req.body.pp_ratio})
+            })
+        }
+    }
+})
 
 app.post('/manager_inspection', function (req, res) {
     if (req.session.user) {
@@ -791,26 +810,26 @@ app.post('/update_details', function (req, res) {
                     let db = client.db(dbName)
                     db.collection("users").find({"username": req.body.username}).toArray(function (err, control_user) {
                         if (err) return console.log(err)
-                        if (control_user.length === 0) {
+                        if (control_user.length == 0 || req.body.old_username === req.body.username) {
                             db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
                                 if (err) return console.log(err)
                                 if (user[0].logged_in) {
                                     return res.send("Selected user is logged in, changes can only be made when the user is logged out.")
                                 }
                                 req.body.role = user[0].role
+                                role = ""
+                                switch (req.body.role) {
+                                    case "Consumer":
+                                        role = "consumers"
+                                        break;
+                                    case "Prosumer":
+                                        role = "prosumers"
+                                        break;
+                                    default:
+                                        console.log("Something went wrong")
+                                        res.send("Something went wrong!")
+                                }
                                 if (req.body.old_username !== req.body.username) {
-                                    role = ""
-                                    switch (req.body.role) {
-                                        case "Consumer":
-                                            role = "consumers"
-                                            break;
-                                        case "Prosumer":
-                                            role = "prosumers"
-                                            break;
-                                        default:
-                                            console.log("Something went wrong")
-                                            res.send("Something went wrong!")
-                                    }
                                     db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
                                         let old = query_res[0]
                                         if (role === "prosumers") {
@@ -866,6 +885,14 @@ app.post('/update_details', function (req, res) {
                                             }
                                         })
                                     })
+                                }
+                                else {
+                                    db.collection("users").updateOne({"username":req.body.username}, {$set:{
+                                        "email":req.body.email, "name":req.body.name
+                                        }}).catch((error) => {
+                                        console.error(error);
+                                    });
+                                    res.redirect('/home')
                                 }
                             })
                         }

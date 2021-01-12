@@ -14,7 +14,7 @@
             <div class="container">
                 <h4 >Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
                 <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
-                <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
+                <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
                 <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
                 <h4 id="alert" style="color:#ff0000; display:None"> Warning: A blackout might happen, <br> make sure to save as much energy as you can!</h4>
             </div>
@@ -32,7 +32,7 @@
                         <h4>Market Production: <span id="market_sell"><%- ssn.market_sell %></span> kWh</h4>
                         <h4>Market Demand: <span id="market_demand"><%- ssn.market_demand %></span> kWh</h4>
                         <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
-                        <h4>Price per kWh: <span id="price"><%- ssn.price %></span> kr</h4>
+                        <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
                         <h4>Blackouts: <span id="blackouts">0</span> st</h4>
                         <h4 id="b_p">Prosumer blackouts:<br><ul id="blackouts_prosumers"></ul></h4>
                     </div>
@@ -42,9 +42,14 @@
                                 <h1 class="mt-5">Adjust production</h1>
                                 <label for="pp_production" class="sr-only">Production</label>
                                 <input name="pp_production" id="pp_production" class="form-control" value="<%- ssn.production %>" required="" autofocus="">
-                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
+                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust powerplant production">
                                 <h7 class="mt-5">Obs! Changes takes a while to come to effect! (30 sec)</h7>
                                 <h4>Current power plant status: <span id="pp_status"><%- ssn.pp_status %></span></h4>
+                            </form>
+                            <form class="form-signin" id="ratio_f">
+                                <h5 class="mt-5">Production storage ratio: <span id="pp_storage_ratio"><%- ssn.ratio %></span>%</h5>
+                                <input type="range" class="form-control-range" id="pp_ratio" value="<%- ssn.ratio %>">
+                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust buffer/market ratio">
                             </form>
 
                         </body>
@@ -68,7 +73,7 @@
                         <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
                         <h4>Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
                         <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
-                        <h4>Price per kWh: <span id="price">1,27</span> kr</h4>
+                        <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
                         <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
                         <h4 id="sell_block">Amount of time blocked from selling to power plant: <%- ssn.sell_block %></h4>
                         <h4 id="alert" style="color:#ff0000; display:None" > Warning: A blackout might happen, <br> make sure to save as much energy as you can!</h4>
