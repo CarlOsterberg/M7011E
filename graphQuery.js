@@ -36,7 +36,7 @@ function APIquery(query, callback) {
     post_req.end();
 }
 
-//resetDbValues()
+resetDbValues()
 
 console.log("Performing queries on API hosted on: " + host + ":" + port + path);
 try {
