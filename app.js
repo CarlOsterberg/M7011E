@@ -208,6 +208,7 @@ function updateDisplayVals(req, callback) {
                                 req.session.blackouts = result[0].blackouts
                                 req.session.pp_status = result[0].pp_status
                                 req.session.ratio = result[0].ratio
+                                req.session.recommended_price = result[0].recommended_price
                             }
                             client.close();
                             callback(true);
@@ -549,6 +550,7 @@ app.post('/login', function (req, res) {
                                     req.session.battery_sell = result3[0].battery_sell;
                                     req.session.battery_use = result3[0].battery_use;
                                     req.session.ratio = result3[0].ratio
+                                    req.session.recommended_price = result3[0].recommended_price
                                     client.close();
                                     return res.redirect('/home');
                                 } else {
@@ -560,7 +562,6 @@ app.post('/login', function (req, res) {
                             client.close();
                             return res.redirect('/home');
                         }
-                        ;
                     } else {
                         client.close();
                         return res.redirect('/login_error');
@@ -1333,6 +1334,21 @@ app.get('/get_blackouts', function (req, res) {
                         res.send({"nmbr_blackouts": nmbr_blackouts, "prosumer_blackouts": prosumer_blackouts})
                     })
                 })
+            })
+        }
+    }
+})
+
+app.post('/set_price', function (req, res) {
+    if (req.session.user) {
+        if (req.session.role === "Manager") {
+            MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
+                if (err) return console.log(err)
+                let db = client.db(dbName)
+                db.collection("wind").updateOne({"_id":"wind"}, {$set:{"price":req.body.new_price}}).catch((error) => {
+                    console.error(error);
+                });
+                res.send({"price":req.body.new_price})
             })
         }
     }

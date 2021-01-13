@@ -186,10 +186,10 @@ function resetDbValues() {
         db.collection("consumers").updateMany({},{$set:{"consumption":0,"blackout":false,}})
         let proUpdate = {"consumption": 0, "production": 0, "battery": 0, "battery_use": 0, "battery_sell": 0,"blackout":false, "sell_block":0}
         db.collection("prosumers").updateMany({},{$set:proUpdate})
-        let manUpdate = {"consumption": 0, "production": 0, "battery": 0, "blackouts": 0}
+        let manUpdate = {"consumption": 0, "production": 0, "battery": 0, "blackouts": 0,"recommended_price": 0}
         db.collection("managers").updateMany({}, {$set:manUpdate})
         let generalUpdate = {"speed": 7, "market_demand": 0, "market_sell": 0, "price": 0, "alert":false, "blackouts": 0,
-            "pp_status": "stopped", "ratio": "0", "recommended_price": 0 }
+            "pp_status": "stopped", "ratio": "0" }
         db.collection("wind").updateMany({},{$set:generalUpdate})
     })
 }

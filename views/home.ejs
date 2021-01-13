@@ -115,6 +115,7 @@
                     $('#pp_status').html(data.pp_status)
                     $('#pp_ratio').html(data.ratio);
                     $('#pp_storage_ratio').html(data.ratio);
+                    $('#recommended_price').html(data.recommended_price);
                     $.get('/get_blackouts', function (data) {
                         $('#blackouts').html(data.nmbr_blackouts);
                         if (data.prosumer_blackouts !== "") {
@@ -153,6 +154,16 @@
             function(data, status){
                 $('#pp_ratio').html(data.ratio,10);
                 $('#pp_storage_ratio').html(data.ratio);
+            });
+        return false;
+    });
+    $("#price_form").submit(function(){
+        $.post('/set_price',
+            {
+                new_price: $('#manual_price').val()
+            },
+            function(data, status){
+                $('#price').html(data.price)
             });
         return false;
     });
