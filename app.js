@@ -1038,7 +1038,6 @@ app.post('/update_personal', function (req, res) {
         let db = client.db(dbName)
         db.collection("users").find({"username": req.session.user}).toArray(function (err, result) {
             if (err) return console.log(err)
-            let pw = result[0].password
             res.render('update_personal', {ssn: req.session});
         });
     });
@@ -1115,8 +1114,9 @@ app.post('/update_val_pers', function (req, res) {
             MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) return console.log(err)
                 let db = client.db(dbName)
-                db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
-                    if (err) {
+                db.collection("users").find({"username": req.body.username}).toArray(function (err, usercheck) {
+                    if (err) return console.log(err)
+                    if(usercheck.length==0){
                         db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
                             if (err) return console.log(err)
                             //check old password input is correct
