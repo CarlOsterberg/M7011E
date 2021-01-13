@@ -49,10 +49,10 @@ try {
                 db.collection("consumers").find().toArray(function (consErr, consumers) {
                     if (consErr) return console.log(consErr)
                     db.collection("prosumers").find().toArray(function (proErr, prosumers) {
-                        if (proErr) return console.log(proErr)
-                        let query = ""
-                        if (consumers.length > 0 && prosumers.length > 0 && managers.length > 0) {
-                            query = "{wph\ndemand(numUsers:" + consumers.length + prosumers.length + 1 + ")\nproduction\nprice}";
+                        if (managers.length != 0) {
+                            if (proErr) return console.log(proErr)
+                            let query = ""
+                            query = "{wph\ndemand(numUsers:" + (consumers.length + prosumers.length + 1) + ")\nproduction\nprice}";
                             APIquery(query, function (q) {
                                 let d = JSON.parse(q);
                                 let q_d = d.data["demand"];
@@ -175,21 +175,48 @@ try {
             });
         });
     }, 1000);
-}catch (error) {
+} catch (error) {
     console.log(error)
 }
+
 function resetDbValues() {
-    MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, function (err,client) {
+    MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, function (err, client) {
         if (err) return console.log(err)
         let db = client.db(dbName)
-        db.collection("users").updateMany({},{$set:{"logged_in":false}})
-        db.collection("consumers").updateMany({},{$set:{"consumption":0,"blackout":false,}})
-        let proUpdate = {"consumption": 0, "production": 0, "battery": 0, "battery_use": 0, "battery_sell": 0,"blackout":false, "sell_block":0}
-        db.collection("prosumers").updateMany({},{$set:proUpdate})
-        let manUpdate = {"consumption": 0, "production": 0, "battery": 0, "blackouts": 0,"recommended_price": 0}
-        db.collection("managers").updateMany({}, {$set:manUpdate})
-        let generalUpdate = {"speed": 7, "market_demand": 0, "market_sell": 0, "price": 0, "alert":false, "blackouts": 0,
-            "pp_status": "stopped", "ratio": "0" }
-        db.collection("wind").updateMany({},{$set:generalUpdate})
+        db.collection("users").updateMany({}, {$set: {"logged_in": false}})
+        db.collection("consumers").updateMany({}, {$set: {"consumption": 0, "blackout": false,}})
+        let proUpdate = {
+            "consumption": 0,
+            "production": 0,
+            "battery": 0,
+            "battery_use": 0,
+            "battery_sell": 0,
+            "blackout": false,
+            "sell_block": 0
+        }
+        db.collection("prosumers").updateMany({}, {$set: proUpdate})
+        let manUpdate = {"consumption": 0, "production": 0, "battery": 0, "blackouts": 0, "recommended_price": 0}
+        db.collection("managers").updateMany({}, {$set: manUpdate})
+        let generalUpdate = {
+            "speed": 7, "market_demand": 0, "market_sell": 0, "price": 0, "alert": false, "blackouts": 0,
+            "pp_status": "stopped", "ratio": "0"
+        }
+        db.collection("wind").updateMany({}, {$set: generalUpdate}).then(
+            res => {
+                if (res.modifiedCount == 0) {
+                    db.collection("wind").insertOne({
+                        _id: "wind",
+                        speed: 0,
+                        market_demand: 0,
+                        market_sell: 0,
+                        price: 0,
+                        alert: false,
+                        blackouts: 0,
+                        pp_status:"stopped",
+                        ratio: 0
+                    })
+                }
+            },
+            err => console.log(err))
     })
 }

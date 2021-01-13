@@ -201,6 +201,7 @@ function updateDisplayVals(req, callback) {
                                 req.session.battery_sell = result[0].battery_sell
                                 req.session.consumption = result[0].consumption
                                 req.session.blackout = result[0].blackout
+                                req.session.sell_block = result[0].sell_block
                             } else if (role === "managers") {
                                 req.session.production = result[0].production
                                 req.session.battery = result[0].battery
@@ -461,6 +462,10 @@ app.post('/createUser', function (req, res) {
                                             consumption: 0,
                                             production: 0,
                                             battery: 0,
+                                            blackouts: 0,
+                                            pp_status: "stopped",
+                                            ratio: 0,
+                                            recommended_price: 0
                                         }
                                         db.collection("managers").insertOne(managers, function (err, result) {
                                             if (err) {
@@ -519,7 +524,7 @@ app.post('/login', function (req, res) {
                                     req.session.battery_sell = result3[0].battery_sell;
                                     req.session.battery_use = result3[0].battery_use;
                                     req.session.blackout = result3[0].blackout;
-                                    req.session.pp_status = result3[0].pp_status;
+                                    req.session.sell_block = result[0].sell_block
                                     client.close();
                                     return res.redirect('/home');
                                 } else {
@@ -551,6 +556,7 @@ app.post('/login', function (req, res) {
                                     req.session.battery_use = result3[0].battery_use;
                                     req.session.ratio = result3[0].ratio
                                     req.session.recommended_price = result3[0].recommended_price
+                                    req.session.pp_status = result3[0].pp_status;
                                     client.close();
                                     return res.redirect('/home');
                                 } else {

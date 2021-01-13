@@ -41,7 +41,7 @@
                             <form class="form-signin" id="form">
                                 <h1 class="mt-5">Adjust production</h1>
                                 <label for="pp_production" class="sr-only">Production</label>
-                                <input name="pp_production" id="pp_production" class="form-control" value="<%- ssn.production %>" required="" autofocus="">
+                                <input name="pp_production" id="pp_production" class="form-control" type="number" step="0.001" value="<%- ssn.production %>" required>
                                 <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust powerplant production">
                                 <h7 class="mt-5">Obs! Changes takes a while to come to effect! (30 sec)</h7>
                                 <h4>Current power plant status: <span id="pp_status"><%- ssn.pp_status %></span></h4>
@@ -54,7 +54,7 @@
                             <form class="form-signin" id="price_form">
                                 <h5 class="mt-5">Manually set the price</h5>
                                 <h7>Recommended price: <span id="recommended_price"><%- ssn.recommended_price %></span> kr/kWh</h7>
-                                <input type="number" id="manual_price" class="form-control">
+                                <input type="number" step="0.001" id="manual_price" class="form-control">
                                 <input type="submit" class="btn btn-lg btn-dark btn-block" value="Set price">
                             </form>
                         </body>
@@ -80,7 +80,7 @@
                         <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
                         <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
                         <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
-                        <h4 id="sell_block">Amount of time blocked from selling to power plant: <%- ssn.sell_block %></h4>
+                        <h4 id="sell_block" style="display:None">Amount of time blocked from selling to power plant: <%- ssn.sell_block %></h4>
                         <h4 id="alert" style="color:#ff0000; display:None" > Warning: A blackout might happen, <br> make sure to save as much energy as you can!</h4>
 
                     </div>
