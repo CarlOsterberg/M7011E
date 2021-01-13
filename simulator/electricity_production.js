@@ -2,6 +2,7 @@ module.exports = class Production {
     //avg_consumption 55 kWh
     constructor(wph) {
         this.generateAvgProduction(wph);
+        this.totalProsumers(0);
     }
 
     generateAvgProduction(wph) {
@@ -12,6 +13,10 @@ module.exports = class Production {
             //when wind = 7.5 m/s, production = 55 kWh (Both averages).
             this.prod = wph * (55/7.5);
         }
+    }
+
+    totalProsumers(numProsumers) {
+        this.numProsumers = numProsumers
     }
 }
 

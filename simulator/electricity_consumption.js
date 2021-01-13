@@ -6,6 +6,7 @@ module.exports = class Consumption {
         this.max = 110;
         this.min = 0;
         this.generateAvgConsumption();
+        this.generateMultipleHouses(0);
     }
 
     generateAvgConsumption() {
@@ -20,8 +21,9 @@ module.exports = class Consumption {
             vals.push(this.consumption);
             sum += this.consumption
         }
-        this.consumption_all = sum
-        return vals
+        this.consumption_avg = sum/vals.length
+        this.numUsers = numUsers
+        this.consumptions = vals
     }
 }
 

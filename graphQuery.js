@@ -36,7 +36,7 @@ function APIquery(query, callback) {
     post_req.end();
 }
 
-resetDbValues()
+//resetDbValues()
 
 console.log("Performing queries on API hosted on: " + host + ":" + port + path);
 try {
@@ -52,7 +52,8 @@ try {
                         if (managers.length != 0) {
                             if (proErr) return console.log(proErr)
                             let query = ""
-                            query = "{wph\ndemand(numUsers:" + (consumers.length + prosumers.length + 1) + ")\nproduction\nprice}";
+                            query = "{wph(numUsers:" + (consumers.length + prosumers.length + 1) + ")\ndemand" +
+                                "\nproduction\nprice}";
                             APIquery(query, function (q) {
                                 let d = JSON.parse(q);
                                 let q_d = d.data["demand"];
@@ -63,17 +64,20 @@ try {
                                 let recommended_price = d.data["price"];
 
                                 /** PP PRODUCTION */
-                                let pp_production = Number(managers[0].production);
-                                let demand_production = pp_production * (1 - Number(managers[0].ratio) / 100)
-                                let old_charge = managers[0].battery;
+                                let pp_net = Number(managers[0].production) - q_d[consumers.length + prosumers.length]
+                                let buffer = managers[0].battery;
+                                if (pp_net < 0) {
+                                    buffer += pp_net
+                                    pp_net = 0
+                                }
+                                let demand_production = pp_net * (1 - Number(managers[0].ratio) / 100)
                                 /** Add the power plant demand to the market demand */
-                                market_demand += q_d[consumers.length + prosumers.length]
                                 /** Add the percent of production */
-                                let pp_battery_charge = (old_charge + pp_production * Number(managers[0].ratio) / 100);
+                                buffer += (pp_net * Number(managers[0].ratio) / 100);
 
                                 /** If power plant is closed the the buffer gets used */
                                 if (managers[0].pp_status === "stopped") {
-                                    demand_production = pp_battery_charge
+                                    demand_production = buffer
                                 }
                                 for (let j = 0; j < prosumers.length; j++) {
                                     let netto = production - q_d[j]
@@ -137,15 +141,15 @@ try {
 
                                 /** When power plant us using buffer, update buffer with the new values */
                                 if (managers[0].pp_status === "stopped") {
-                                    pp_battery_charge = market_sell - market_demand + demand_production
+                                    buffer = market_sell - market_demand + demand_production
                                 }
 
-                                if (pp_battery_charge > 10000) {
-                                    pp_battery_charge = 10000;
-                                } else if (pp_battery_charge < 0) {
-                                    pp_battery_charge = 0;
+                                if (buffer > 10000) {
+                                    buffer = 10000;
+                                } else if (buffer < 0) {
+                                    buffer = 0;
                                 }
-                                if (pp_battery_charge < 1000) {
+                                if (buffer < 1000) {
                                     alert = true;
                                 } else {
                                     alert = false;
@@ -153,8 +157,7 @@ try {
                                 db.collection("managers").updateMany({}, {
                                     $set: {
                                         "consumption": q_d[consumers.length + prosumers.length],
-                                        "production": pp_production,
-                                        "battery": pp_battery_charge,
+                                        "battery": buffer,
                                         "recommended_price": recommended_price
                                     }
                                 }).catch((error) => {
@@ -174,7 +177,7 @@ try {
                 });
             });
         });
-    }, 1000);
+    }, 5000);
 } catch (error) {
     console.log(error)
 }

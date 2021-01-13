@@ -663,8 +663,7 @@ app.post('/ajax', function (req, res) {
                                         "production": req.body.pp_production,
                                         "pp_status": "stopped"
                                     }
-                                }
-                                else {
+                                } else {
                                     query = {
                                         "production": req.body.pp_production,
                                         "pp_status": "running"
@@ -678,7 +677,7 @@ app.post('/ajax', function (req, res) {
                                 req.session.production = req.body.pp_production;
                                 return res.json({"pp_production": req.body.pp_production});
                             });
-                        }, 1000);
+                        }, 30000);
                     }
                 })
             })
@@ -690,18 +689,20 @@ app.post('/ajax', function (req, res) {
     }
 });
 
-app.post('/adjust_pp_ratio', function (req,res) {
+app.post('/adjust_pp_ratio', function (req, res) {
     if (req.session.user) {
-        if (req.session.role === "Manager"){
+        if (req.session.role === "Manager") {
             MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) return console.log(err)
                 let db = client.db(dbName);
-                db.collection("managers").updateMany({},{$set:{
-                    "ratio": req.body.pp_ratio
-                    }}).then(() => {
+                db.collection("managers").updateMany({}, {
+                    $set: {
+                        "ratio": req.body.pp_ratio
+                    }
+                }).then(() => {
                     client.close()
-                    })
-                    res.send({"ratio":req.body.pp_ratio})
+                })
+                res.send({"ratio": req.body.pp_ratio})
             })
         }
     }
@@ -891,11 +892,12 @@ app.post('/update_details', function (req, res) {
                                                 }
                                             })
                                         })
-                                    }
-                                    else {
-                                        db.collection("users").updateOne({"username":req.body.username}, {$set:{
-                                                "email":req.body.email, "name":req.body.name
-                                            }}).catch((error) => {
+                                    } else {
+                                        db.collection("users").updateOne({"username": req.body.username}, {
+                                            $set: {
+                                                "email": req.body.email, "name": req.body.name
+                                            }
+                                        }).catch((error) => {
                                             console.error(error);
                                         });
                                         res.redirect('/home')
@@ -973,11 +975,12 @@ app.post('/update_details', function (req, res) {
                                                         }
                                                     })
                                                 })
-                                            }
-                                            else {
-                                                db.collection("users").updateOne({"username":req.body.username}, {$set:{
-                                                        "email":req.body.email, "name":req.body.name, "password": hash
-                                                    }}).catch((error) => {
+                                            } else {
+                                                db.collection("users").updateOne({"username": req.body.username}, {
+                                                    $set: {
+                                                        "email": req.body.email, "name": req.body.name, "password": hash
+                                                    }
+                                                }).catch((error) => {
                                                     console.error(error);
                                                 });
                                                 res.redirect('/home')
@@ -988,8 +991,7 @@ app.post('/update_details', function (req, res) {
                                 //else over
 
                             })
-                        }
-                        else {
+                        } else {
                             return res.send("Username already taken, choose another")
                         }
                     })
@@ -1122,7 +1124,7 @@ app.post('/update_val_pers', function (req, res) {
                 let db = client.db(dbName)
                 db.collection("users").find({"username": req.body.username}).toArray(function (err, usercheck) {
                     if (err) return console.log(err)
-                    if(usercheck.length==0){
+                    if (usercheck.length == 0) {
                         db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
                             if (err) return console.log(err)
                             //check old password input is correct
@@ -1326,9 +1328,11 @@ app.get('/get_blackouts', function (req, res) {
                         client.close()
                         let nmbr_blackouts = 0
                         let prosumer_blackouts = ""
+                        let consumer_blackouts = ""
                         for (let i = 0; i < consumers.length; i++) {
                             if (consumers[i].blackout) {
                                 nmbr_blackouts++
+                                consumer_blackouts += "<li>" + consumers[i]._id + "</li>"
                             }
                         }
                         for (let i = 0; i < prosumers.length; i++) {
@@ -1337,7 +1341,10 @@ app.get('/get_blackouts', function (req, res) {
                                 prosumer_blackouts += "<li>" + prosumers[i]._id + "</li>"
                             }
                         }
-                        res.send({"nmbr_blackouts": nmbr_blackouts, "prosumer_blackouts": prosumer_blackouts})
+                        res.send({"nmbr_blackouts": nmbr_blackouts,
+                            "prosumer_blackouts": prosumer_blackouts,
+                            "consumer_blackouts": consumer_blackouts
+                        })
                     })
                 })
             })
@@ -1351,10 +1358,10 @@ app.post('/set_price', function (req, res) {
             MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) return console.log(err)
                 let db = client.db(dbName)
-                db.collection("wind").updateOne({"_id":"wind"}, {$set:{"price":req.body.new_price}}).catch((error) => {
+                db.collection("wind").updateOne({"_id": "wind"}, {$set: {"price": req.body.new_price}}).catch((error) => {
                     console.error(error);
                 });
-                res.send({"price":req.body.new_price})
+                res.send({"price": req.body.new_price})
             })
         }
     }
