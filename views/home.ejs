@@ -125,7 +125,13 @@
                         else {
                             $('#b_p').css('display','none');
                         }
-
+                        if (data.consumer_blackouts !== "") {
+                            $('#b_c').css('display','inherit');
+                            $('#blackouts_consumers').html(data.consumer_blackouts)
+                        }
+                        else {
+                            $('#b_c').css('display','none');
+                        }
                     })
                 }
             }

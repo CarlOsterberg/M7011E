@@ -16,43 +16,46 @@ let latestDay = currentdate.getMinutes();
 const schema = buildSchema(`
     type Query {
         price: Float!
-        wph: Float!
-        wpd: Float!
+        wph(numUsers: Int!): Float!
         production: Float!
-        demand(numUsers: Int!): [Float!]!
+        demand: [Float!]!
     }
 `);
 
 // The root provides a resolver function for each API endpoint
 const Query = {
-    wph: () => {
+    wph: ({numUsers}) => {
         currentdate = new Date();
         currentHour = currentdate.getSeconds();
         currentDay = currentdate.getMinutes();
+        //new day
         if (currentDay!==latestDay) {
             simulator.windObj.generateAvgWindDay();
             simulator.windObj.generateAvgWindHour();
+            simulator.consumptionObj.generateMultipleHouses(numUsers)
             latestDay = currentDay;
             latestHour = currentHour;
             simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
         }
+        //new hour
         else if (currentHour>latestHour+10) {
             simulator.windObj.generateAvgWindHour();
+            simulator.consumptionObj.generateMultipleHouses(numUsers);
             latestHour = currentHour;
             simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
         }
         return simulator.windObj.avgWindHour;
     },
-    wpd: () => simulator.windObj.avgWindDay,
-    demand: ({numUsers}) => {
-        return simulator.consumptionObj.generateMultipleHouses(numUsers)
+    demand: () => {
+        return simulator.consumptionObj.consumptions;
     },
     production: () => {
         return simulator.productionObj.prod;
     },
     price: () => {
-        simulator.priceObj.setPrice(simulator.consumptionObj.consumption_all)
-        return simulator.priceObj.currentPrice
+        simulator.priceObj.setPrice(simulator.consumptionObj.consumption_avg,
+            simulator.productionObj.numProsumers/simulator.consumptionObj.numUsers)
+        return simulator.priceObj.demandPrice
     },
 }
 
