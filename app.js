@@ -15,6 +15,19 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 const multer = require('multer');
 
+//database setup
+const url = 'mongodb://127.0.0.1:27017'
+const dbName = 'M7011E'
+
+//sessions setup
+app.use(session({
+    secret: 'wewo',
+    // create new redis store.
+    store: new redisStore({host: 'localhost', port: 6379, client: redisClient, ttl: 260}),
+    saveUninitialized: true,
+    resave: false
+}));
+
 //delete an image when a user uploads a new one
 const deleteFile = (file) => {
     fs.unlink(file, (err) => {
@@ -52,21 +65,9 @@ function checkFileType(file, callback) {
     }
 }
 
-//sessions setup
-app.use(session({
-    secret: 'wewo',
-    // create new redis store.
-    store: new redisStore({host: 'localhost', port: 6379, client: redisClient, ttl: 260}),
-    saveUninitialized: true,
-    resave: false
-}));
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/views'));
-
-//database setup
-const url = 'mongodb://127.0.0.1:27017'
-const dbName = 'M7011E'
 
 //global variables initialized
 let wind = 0;
