@@ -1241,6 +1241,7 @@ app.post('/update_val_pers', function (req, res) {
                                         }
                                         db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
                                             let old = query_res[0]
+                                            console.log(old)
                                             db.collection("users").updateOne({"username": req.body.old_username}, {
                                                 $set: {
                                                     "name": req.body.name,
@@ -1282,7 +1283,9 @@ app.post('/update_val_pers', function (req, res) {
                                                         "consumption": old.consumption,
                                                         "production": old.production,
                                                         "battery": old.battery,
-                                                        "blackouts": old.blackouts
+                                                        "blackouts": old.blackouts,
+                                                        "recommended_price": old.recommended_price,
+                                                        "ratio":old.ratio
                                                     }, function (err, writeRes) {
                                                         if (err) {
                                                             return console.log(err)

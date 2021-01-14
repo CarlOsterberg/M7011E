@@ -5,9 +5,7 @@ const s = require("./sim");
 
 let simulator = new s();
 
-let currentdate = new Date();
-let latestHour = currentdate.getSeconds();
-let latestDay = currentdate.getMinutes();
+let Hours = 0;
 
 // Construct a schema, using GraphQL schema language
 
@@ -25,23 +23,19 @@ const schema = buildSchema(`
 // The root provides a resolver function for each API endpoint
 const Query = {
     wph: ({numUsers}) => {
-        currentdate = new Date();
-        currentHour = currentdate.getSeconds();
-        currentDay = currentdate.getMinutes();
+        Hours++
         //new day
-        if (currentDay!==latestDay) {
+        if (Hours == 6) {
             simulator.windObj.generateAvgWindDay();
             simulator.windObj.generateAvgWindHour();
             simulator.consumptionObj.generateMultipleHouses(numUsers)
-            latestDay = currentDay;
-            latestHour = currentHour;
+            Hours = 0
             simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
         }
         //new hour
-        else if (currentHour>latestHour+10) {
+        else  {
             simulator.windObj.generateAvgWindHour();
             simulator.consumptionObj.generateMultipleHouses(numUsers);
-            latestHour = currentHour;
             simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
         }
         return simulator.windObj.avgWindHour;
