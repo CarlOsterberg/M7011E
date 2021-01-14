@@ -15,13 +15,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 const multer = require('multer');
 
+//delete an image when a user uploads a new one
 const deleteFile = (file) => {
     fs.unlink(file, (err) => {
         if (err) throw err;
     });
 }
 
-// Set The Storage Engine
+// Set The Storage Engine (multer)
 const storage = multer.diskStorage({
     destination: './views/partials/public/uploads/',
     filename: function (req, file, callback) {
@@ -29,7 +30,7 @@ const storage = multer.diskStorage({
     }
 });
 
-// Init Upload
+// Init Upload (multer)
 const upload = multer({
     storage: storage,
     limits: {fileSize: 1000000},
@@ -38,7 +39,7 @@ const upload = multer({
     }
 }).single('image');
 
-// Check File Type
+// Check File Type (multer)
 function checkFileType(file, callback) {
     // Allowed ext
     const filetypes = /jpeg|jpg|png|gif/;
@@ -51,6 +52,7 @@ function checkFileType(file, callback) {
     }
 }
 
+//sessions setup
 app.use(session({
     secret: 'wewo',
     // create new redis store.
@@ -62,9 +64,11 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/views'));
 
+//database setup
 const url = 'mongodb://127.0.0.1:27017'
 const dbName = 'M7011E'
 
+//global variables initialized
 let wind = 0;
 let price = 0;
 let market_demand = 0;
@@ -155,6 +159,7 @@ function blockLoop(user) {
     }, 1000)
 }
 
+//updates the session variables from the database
 function updateDisplayVals(req, callback) {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
         if (err) return console.log(err)
@@ -224,6 +229,7 @@ function updateDisplayVals(req, callback) {
     });
 
 }
+
 
 app.get('/', (req, res) => {
     return res.redirect('/home');
@@ -346,7 +352,9 @@ app.get('/login_error', (req, res) => {
     res.render('login_error', {});
 });
 
+//image uploads from personal page
 app.post('/personal', (req, res) => {
+    //upload via multer to the views/public/uploads folder
     upload(req, res, (err) => {
         if (err) {
             res.render('personal',
@@ -369,9 +377,11 @@ app.post('/personal', (req, res) => {
                     let query = {username: req.session.user}
                     db.collection("users").find(query).toArray(function (err, result) {
                         if (err) return console.log(err)
+                        //delete old image if not standard image
                         if (result[0].image !== "partials/public/uploads/harry.png" && result[0].image !== "partials/public/uploads/default.jpg" && result[0].image !== "partials/public/uploads/manager_default.png") {
                             deleteFile("views/" + result[0].image)
                         }
+                        //update db with correct filepath
                         db.collection("users").updateOne({"username": req.session.user},
                             {$set: {"image": displayPath}});
                         res.render('personal',
@@ -387,6 +397,7 @@ app.post('/personal', (req, res) => {
     });
 });
 
+//create user, update db with new user if ok
 app.post('/createUser', function (req, res) {
     if (!req.session.user) {
         MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
@@ -493,6 +504,7 @@ app.post('/createUser', function (req, res) {
     }
 });
 
+//login user if user exist and set session variables from the database values for that user
 app.post('/login', function (req, res) {
     if (req.session.user) {
         return res.redirect('/logged_in');
@@ -506,6 +518,7 @@ app.post('/login', function (req, res) {
                 if (result.length < 1) {
                     return res.redirect('/login_error');
                 }
+                //checks password
                 bcrypt.compare(req.body.password, result[0].password).then(function (result2) {
                     if (result2) {
                         db.collection("users").updateOne(query, {$set: {"logged_in": true}})
@@ -689,6 +702,7 @@ app.post('/ajax', function (req, res) {
     }
 });
 
+//manager changes the production
 app.post('/adjust_pp_ratio', function (req, res) {
     if (req.session.user) {
         if (req.session.role === "Manager") {
@@ -807,21 +821,26 @@ app.post('/manager_lookup_ajax', function (req, res) {
     }
 })
 
+//update prosumer & consumer information as a manager
 app.post('/update_details', function (req, res) {
     if (req.session.user) {
+        //have to be a manager
         if (req.session.role === "Manager") {
+            //change information
             if (req.body.old_username) {
                 MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                     if (err) return console.log(err)
                     let db = client.db(dbName)
                     db.collection("users").find({"username": req.body.username}).toArray(function (err, control_user) {
                         if (err) return console.log(err)
+                        //username cant be the same as another user
                         if (control_user.length == 0 || req.body.old_username === req.body.username) {
                             db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
                                 if (err) return console.log(err)
                                 if (user[0].logged_in) {
                                     return res.send("Selected user is logged in, changes can only be made when the user is logged out.")
                                 }
+                                //if password is not changed
                                 if (req.body.password === "") {
                                     req.body.role = user[0].role
                                     role = ""
@@ -836,6 +855,7 @@ app.post('/update_details', function (req, res) {
                                             console.log("Something went wrong")
                                             res.send("Something went wrong!")
                                     }
+                                    //username should be changed
                                     if (req.body.old_username !== req.body.username) {
                                         db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
                                             let old = query_res[0]
@@ -892,6 +912,7 @@ app.post('/update_details', function (req, res) {
                                                 }
                                             })
                                         })
+                                        //username is not updated
                                     } else {
                                         db.collection("users").updateOne({"username": req.body.username}, {
                                             $set: {
@@ -902,6 +923,7 @@ app.post('/update_details', function (req, res) {
                                         });
                                         res.redirect('/home')
                                     }
+                                    //password should be updated
                                 } else {
                                     bcrypt.genSalt(10, function (err, salt) {
                                         bcrypt.hash(req.body.password, salt, function (err, hash) {
@@ -918,6 +940,7 @@ app.post('/update_details', function (req, res) {
                                                     console.log("Something went wrong")
                                                     res.send("Something went wrong!")
                                             }
+                                            //username should change
                                             if (req.body.old_username !== req.body.username) {
                                                 db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
                                                     let old = query_res[0]
@@ -975,6 +998,7 @@ app.post('/update_details', function (req, res) {
                                                         }
                                                     })
                                                 })
+                                                //username should not change
                                             } else {
                                                 db.collection("users").updateOne({"username": req.body.username}, {
                                                     $set: {
@@ -988,14 +1012,13 @@ app.post('/update_details', function (req, res) {
                                         });
                                     });
                                 }
-                                //else over
-
                             })
                         } else {
                             return res.send("Username already taken, choose another")
                         }
                     })
                 })
+                //delete user
             } else if (req.body.delete_username) {
                 MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                     if (err) return console.log(err)
@@ -1040,19 +1063,18 @@ app.post('/update_details', function (req, res) {
     }
 });
 
+//redirect to update_personal page
 app.post('/update_personal', function (req, res) {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
         if (err) return console.log(err)
-        let db = client.db(dbName)
-        db.collection("users").find({"username": req.session.user}).toArray(function (err, result) {
-            if (err) return console.log(err)
-            res.render('update_personal', {ssn: req.session});
-        });
+        res.render('update_personal', {ssn: req.session});
     });
 });
 
+//update user information of your own user
 app.post('/update_val_pers', function (req, res) {
     if (req.session.user) {
+        //username is the same
         if (req.body.old_username === req.body.username) {
             MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) return console.log(err)
@@ -1118,12 +1140,14 @@ app.post('/update_val_pers', function (req, res) {
                     });
                 });
             });
+            //user wants new username
         } else {
             MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) return console.log(err)
                 let db = client.db(dbName)
                 db.collection("users").find({"username": req.body.username}).toArray(function (err, usercheck) {
                     if (err) return console.log(err)
+                    //username does not exist already
                     if (usercheck.length == 0) {
                         db.collection("users").find({"username": req.body.old_username}).toArray(function (err, user) {
                             if (err) return console.log(err)
@@ -1241,7 +1265,6 @@ app.post('/update_val_pers', function (req, res) {
                                         }
                                         db.collection(role).find({"_id": req.body.old_username}).toArray(function (err, query_res) {
                                             let old = query_res[0]
-                                            console.log(old)
                                             db.collection("users").updateOne({"username": req.body.old_username}, {
                                                 $set: {
                                                     "name": req.body.name,
@@ -1285,7 +1308,7 @@ app.post('/update_val_pers', function (req, res) {
                                                         "battery": old.battery,
                                                         "blackouts": old.blackouts,
                                                         "recommended_price": old.recommended_price,
-                                                        "ratio":old.ratio
+                                                        "ratio": old.ratio
                                                     }, function (err, writeRes) {
                                                         if (err) {
                                                             return console.log(err)
@@ -1318,6 +1341,7 @@ app.post('/update_val_pers', function (req, res) {
     }
 });
 
+//check blackouts of the grid, how many and which households
 app.get('/get_blackouts', function (req, res) {
     if (req.session.user) {
         if (req.session.role === "Manager") {
@@ -1344,7 +1368,8 @@ app.get('/get_blackouts', function (req, res) {
                                 prosumer_blackouts += "<li>" + prosumers[i]._id + "</li>"
                             }
                         }
-                        res.send({"nmbr_blackouts": nmbr_blackouts,
+                        res.send({
+                            "nmbr_blackouts": nmbr_blackouts,
                             "prosumer_blackouts": prosumer_blackouts,
                             "consumer_blackouts": consumer_blackouts
                         })
@@ -1355,6 +1380,7 @@ app.get('/get_blackouts', function (req, res) {
     }
 })
 
+//price
 app.post('/set_price', function (req, res) {
     if (req.session.user) {
         if (req.session.role === "Manager") {

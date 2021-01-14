@@ -1,0 +1,54 @@
+<!-- update personal information html -->
+<body class="text-center">
+<form class="form-signin" action="/update_val_pers" method="post">
+    <!-- name -->
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon1">Name</span>
+        </div>
+        <input name="name" required type="text" class="form-control" aria-label="Username"
+               aria-describedby="basic-addon1" value="<%= ssn.name %>">
+    </div>
+    <!-- username -->
+    <div class="input-group mb-3">
+        <input name="username" required type="text" class="form-control" aria-label="Recipient's username"
+               aria-describedby="basic-addon2" value="<%= ssn.user %>">
+        <div class="input-group-append">
+            <span class="input-group-text" id="basic-addon2">Username</span>
+        </div>
+    </div>
+    <!-- email -->
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon2">Email</span>
+        </div>
+        <input name="email" required type="email" class="form-control" aria-label="Username"
+               aria-describedby="basic-addon1" value="<%= ssn.email %>">
+    </div>
+    <!-- password -->
+    <div class="input-group mb-3">
+        <input name="new_password" type="password" id="new_password" class="form-control">
+        <div class="input-group-append">
+            <span class="input-group-text" id="basic-addon1">New Password</span>
+        </div>
+    </div>
+    <!-- password check -->
+    <div class="input-group mb-3">
+        <input name="cont_new_password" type="password" id="cont_new_password" class="form-control">
+        <div class="input-group-append">
+            <span class="input-group-text" id="basic-addon1">New Password</span>
+        </div>
+    </div>
+    <!-- old password -->
+    <div class="input-group mb-3">
+        <input name="old_password" type="password" id="old_password" class="form-control">
+        <div class="input-group-append">
+            <span class="input-group-text" id="basic-addon1">Old Password</span>
+        </div>
+    </div>
+
+    <button name="old_username" type="submit" class="btn btn-dark btn-lg btn-block" value="<%- ssn.user %>">
+        Change user details
+    </button>
+</form>
+</body>

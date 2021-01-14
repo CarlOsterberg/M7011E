@@ -1,105 +1,122 @@
-<div class="container" >
-    <%if (ssn == "Login") {
+<!-- home html -->
+<div class="container">
+    <!-- not logged in -->
+    <% if (ssn == "Login") {
     %>
         <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
         <p class="lead">Welcome to Green Lean Electrics website for a greener future!</p>
         <form class="form-signin" action="/login_error" class="align-content-center">
             <h4 class="h3 mb-3 font-weight-normal">You are not logged in!</h4>
-            <a href="login" >Log in to see your home page</a>
+            <a href="login">Log in to see your home page</a>
         </form>
         </body>
-    <%} else if (ssn.user !== "Login" && ssn.role === "Consumer") {
+        <!-- consumer -->
+    <% } else if (ssn.user !== "Login" && ssn.role === "Consumer") {
     %>
-            <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
-            <div class="container">
-                <h4 >Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
-                <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+        <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+        <div class="container">
+            <h4>Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+            <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+            <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
+            <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
+            <h4 id="alert" style="color:#ff0000; display:None"> Warning: A blackout might happen, <br> make sure to save
+                as much energy as you can!</h4>
+        </div>
+        </body>
+        <!-- manager -->
+    <% } else if (ssn.user !== "Login" && ssn.role === "Manager") {
+    %>
+        <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+        <div class="container">
+            <div style="float: left; overflow: hidden;">
+                <h1 class="mt-5">Your Home Overview</h1>
+                <!-- display information -->
+                <h4>Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+                <h4>PP Production: <span id="production"><%- ssn.production %></span> kWh</h4>
+                <h4>PP Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                <h4>PP Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
+                <h4>Market Production: <span id="market_sell"><%- ssn.market_sell %></span> kWh</h4>
+                <h4>Market Demand: <span id="market_demand"><%- ssn.market_demand %></span> kWh</h4>
+                <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
                 <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
-                <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
-                <h4 id="alert" style="color:#ff0000; display:None"> Warning: A blackout might happen, <br> make sure to save as much energy as you can!</h4>
+                <h4>Blackouts: <span id="blackouts">0</span> st</h4>
+                <h4 id="b_c" style="display: none">Consumer blackouts:<br>
+                    <ul id="blackouts_consumers"></ul>
+                </h4>
+                <h4 id="b_p" style="display: none">Prosumer blackouts:<br>
+                    <ul id="blackouts_prosumers"></ul>
+                </h4>
             </div>
-            </body>
-    <%} else if (ssn.user !== "Login" && ssn.role === "Manager") {
-    %>
-            <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
-                <div class="container">
-                    <div style="float: left; overflow: hidden;">
-                        <h1 class="mt-5">Your Home Overview</h1>
-                        <h4>Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
-                        <h4>PP Production: <span id="production"><%- ssn.production %></span> kWh</h4>
-                        <h4>PP Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
-                        <h4>PP Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
-                        <h4>Market Production: <span id="market_sell"><%- ssn.market_sell %></span> kWh</h4>
-                        <h4>Market Demand: <span id="market_demand"><%- ssn.market_demand %></span> kWh</h4>
-                        <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
-                        <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
-                        <h4>Blackouts: <span id="blackouts">0</span> st</h4>
-                        <h4 id="b_c" style="display: none">Consumer blackouts:<br><ul id="blackouts_consumers"></ul></h4>
-                        <h4 id="b_p" style="display: none">Prosumer blackouts:<br><ul id="blackouts_prosumers"></ul></h4>
-                    </div>
-                    <div class="float-child" style="float: right; overflow: hidden;">
-                        <body>
-                            <form class="form-signin" id="form">
-                                <h1 class="mt-5">Adjust production</h1>
-                                <label for="pp_production" class="sr-only">Production</label>
-                                <input name="pp_production" id="pp_production" class="form-control" type="number" step="0.001" value="<%- ssn.production %>" required>
-                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust powerplant production">
-                                <h7 class="mt-5">Obs! Changes takes a while to come to effect! (30 sec)</h7>
-                                <h4>Current power plant status: <span id="pp_status"><%- ssn.pp_status %></span></h4>
-                            </form>
-                            <form class="form-signin" id="ratio_f">
-                                <h5 class="mt-5">Production storage ratio: <span id="pp_storage_ratio"><%- ssn.ratio %></span>%</h5>
-                                <input type="range" class="form-control-range" id="pp_ratio" value="<%- ssn.ratio %>">
-                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust buffer/market ratio">
-                            </form>
-                            <form class="form-signin" id="price_form">
-                                <h5 class="mt-5">Manually set the price</h5>
-                                <h7>Recommended price: <span id="recommended_price"><%- ssn.recommended_price %></span> kr/kWh</h7>
-                                <input type="number" step="0.001" id="manual_price" class="form-control">
-                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Set price">
-                            </form>
-                        </body>
-                    </div>
-                </div>
-            </body>
-    <%} else if (ssn.ssn !== "Login" && ssn.role === "Admin") {
-    %>
-            <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
-            <h1 class="mt-5">KOM IGEN NU BRITT MARIE KÖR FÖR FA A N</h1>
-            </body>
+            <!-- update values -->
+            <div class="float-child" style="float: right; overflow: hidden;">
+                <body>
+                <form class="form-signin" id="form">
+                    <!-- pp production -->
+                    <h1 class="mt-5">Adjust production</h1>
+                    <label for="pp_production" class="sr-only">Production</label>
+                    <input name="pp_production" id="pp_production" class="form-control" type="number" step="0.001"
+                           value="<%- ssn.production %>" required>
+                    <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust powerplant production">
+                    <h7 class="mt-5">Obs! Changes takes a while to come to effect! (30 sec)</h7>
+                    <h4>Current power plant status: <span id="pp_status"><%- ssn.pp_status %></span></h4>
+                </form>
+                <!-- battery and market grid production ratio -->
+                <form class="form-signin" id="ratio_f">
+                    <h5 class="mt-5">Production storage ratio: <span id="pp_storage_ratio"><%- ssn.ratio %></span>%</h5>
+                    <input type="range" class="form-control-range" id="pp_ratio" value="<%- ssn.ratio %>">
+                    <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust buffer/market ratio">
+                </form>
+                <!-- price -->
+                <form class="form-signin" id="price_form">
+                    <h5 class="mt-5">Manually set the price</h5>
+                    <h7>Recommended price: <span id="recommended_price"><%- ssn.recommended_price %></span> kr/kWh</h7>
+                    <input type="number" step="0.001" id="manual_price" class="form-control">
+                    <input type="submit" class="btn btn-lg btn-dark btn-block" value="Set price">
+                </form>
+                </body>
+            </div>
+        </div>
+        </body>
+        <!-- prosumer -->
     <%
     } else if (ssn.user !== "Login" && ssn.role === "Prosumer") {
     %>
-            <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
-                <div class="container">
-                    <div style="float: left; overflow: hidden;">
-                        <h1 class="mt-5">Your Home Overview</h1>
-                        <h4>Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
-                        <h4>Production: <span id="production"><%- ssn.production %></span> kWh</h4>
-                        <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
-                        <h4>Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
-                        <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
-                        <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
-                        <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
-                        <h4 id="sell_block" style="display:None">Amount of time blocked from selling to power plant: <%- ssn.sell_block %></h4>
-                        <h4 id="alert" style="color:#ff0000; display:None" > Warning: A blackout might happen, <br> make sure to save as much energy as you can!</h4>
+        <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg')">
+        <div class="container">
+            <div style="float: left; overflow: hidden;">
+                <h1 class="mt-5">Your Home Overview</h1>
+                <!-- display information -->
+                <h4>Wind: <span id="wind"><%- windSpeed %></span> m/s</h4>
+                <h4>Production: <span id="production"><%- ssn.production %></span> kWh</h4>
+                <h4>Consumption: <span id="consumption"><%- ssn.consumption %></span> kWh</h4>
+                <h4>Net production: <span id="netto"><%- ssn.production - ssn.consumption %> </span> kWh</h4>
+                <h4>Battery: <span id="battery"><%- ssn.battery %></span> kWh</h4>
+                <h4>Price per kWh: <span id="price"><%- price %></span> kr</h4>
+                <h4>Blackout: <span id="blackout"><%- ssn.blackout %></span></h4>
+                <h4 id="sell_block" style="display:None">Amount of time blocked from selling to power
+                    plant: <%- ssn.sell_block %></h4>
+                <h4 id="alert" style="color:#ff0000; display:None"> Warning: A blackout might happen, <br> make sure to
+                    save as much energy as you can!</h4>
 
-                    </div>
-                    <div class="float-child" style="float: right; overflow: hidden;">
-                        <body>
-                            <form class="form-signin" id="form">
-                                <h1 class="mt-5">Adjust battery</h1>
-                                <h5 class="mt-5">Use of battery: <span id="use_display"><%- ssn.battery_use %></span>%</h5>
-                                <input type="range" class="form-control-range" id="use" value="<%- ssn.battery_use %>">
-                                <h5 class="mt-5">Storage of battery: <span id="storage_display"><%- ssn.battery_sell %></span>%</h5>
-                                <input type="range" class="form-control-range" id="storage" value="<%- ssn.battery_sell %>">
-                                <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
-                            </form>
-                        </body>
-                    </div>
-                </div>
-            </body>
+            </div>
+            <!-- update values -->
+            <div class="float-child" style="float: right; overflow: hidden;">
+                <body>
+                <form class="form-signin" id="form">
+                    <h1 class="mt-5">Adjust battery</h1>
+                    <!-- battery and pp usage ratio -->
+                    <h5 class="mt-5">Use of battery: <span id="use_display"><%- ssn.battery_use %></span>%</h5>
+                    <input type="range" class="form-control-range" id="use" value="<%- ssn.battery_use %>">
+                    <!-- battery and pp storage/sell ratio -->
+                    <h5 class="mt-5">Storage of battery: <span id="storage_display"><%- ssn.battery_sell %></span>%</h5>
+                    <input type="range" class="form-control-range" id="storage" value="<%- ssn.battery_sell %>">
+                    <input type="submit" class="btn btn-lg btn-dark btn-block" value="Adjust">
+                </form>
+                </body>
+            </div>
+        </div>
+        </body>
     <%
-    }%>
+    } %>
 </div>
 

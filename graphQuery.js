@@ -36,7 +36,8 @@ function APIquery(query, callback) {
     post_req.end();
 }
 
-resetDbValues()
+//used for debugging purposes
+//resetDbValues()
 
 console.log("Performing queries on API hosted on: " + host + ":" + port + path);
 try {
@@ -49,6 +50,7 @@ try {
                 db.collection("consumers").find().toArray(function (consErr, consumers) {
                     if (consErr) return console.log(consErr)
                     db.collection("prosumers").find().toArray(function (proErr, prosumers) {
+                        //you have to have a manager to start the queries to the simulator
                         if (managers.length != 0) {
                             if (proErr) return console.log(proErr)
                             let query = ""
@@ -136,8 +138,6 @@ try {
                                         console.error(error);
                                     });
                                 }
-                                /** db update managers and global variables*/
-                                //demand_production = market_sell - market_demand + demand_production
 
                                 /** When power plant us using buffer, update buffer with the new values */
                                 if (managers[0].pp_status === "stopped") {
@@ -182,6 +182,7 @@ try {
     console.log(error)
 }
 
+//function to help debugging, reset all the database values for all users
 function resetDbValues() {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, function (err, client) {
         if (err) return console.log(err)
@@ -215,7 +216,7 @@ function resetDbValues() {
                         price: 0,
                         alert: false,
                         blackouts: 0,
-                        pp_status:"stopped",
+                        pp_status: "stopped",
                         ratio: 0
                     })
                 }

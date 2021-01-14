@@ -1,0 +1,27 @@
+<!-- create user html -->
+<body class="text-center">
+<form class="form-signin" action="/createUser" method="post">
+    <h1 class="h3 mb-3 font-weight-normal">Sign up</h1>
+    <!-- name -->
+    <label for="inputName" class="sr-only">Username</label>
+    <input name="name" type="text" id="inputName" class="form-control" placeholder="Name" required="" autofocus="">
+    <!-- username -->
+    <label for="inputUsername" class="sr-only">Username</label>
+    <input name="username" type="text" id="inputUsername" class="form-control" placeholder="Username" required=""
+           autofocus="">
+    <!-- password -->
+    <label for="inputPassword" class="sr-only">Password</label>
+    <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
+    <!-- email -->
+    <label for="inputEmail" class="sr-only">Email</label>
+    <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email" required="">
+    <!-- Consumer or prosumer -->
+    <label for="inputRole" class="sr-only">Role</label>
+    <select name="role" class="form-control" id="inputRole">
+        <option>Prosumer</option>
+        <option>Consumer</option>
+        <option>Manager</option>
+    </select>
+    <button class="btn btn-lg btn-dark btn-block" type="submit">Sign up!</button>
+</form>
+</body>

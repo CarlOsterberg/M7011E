@@ -1,3 +1,4 @@
+<!-- manager user list html -->
 <div class="container">
     <% if (ssn === "Login") {
     %>
@@ -10,25 +11,28 @@
     }
     else {
     %>
+        <!-- consumers -->
         <h1 class="mt-5">User statuses</h1>
         <h5 class="mt-3">Current consumers</h5>
         <form class="lead" method="post" action="/manager_inspection">
             <ul class="list-group list-group-flush" id="consumers">
                 <% for (let i = 0;i < statuses.consumers.name.length;i++) {
                 %>
-                <li class="list-group-item">
-                    <button name="consumer_username" type="submit" class="btn btn-link" value="<%- statuses.consumers.name[i] %>">
-                        <%- statuses.consumers.name[i] %></button>
-                    <% if(statuses.consumers.logged_in[i]) { %>
-                        <span class="badge badge-primary badge-pill">Logged in</span>
-                    <% }
-                    else { %><span class="badge badge-secondary badge-pill">Logged out</span>
-                    <% } %>
-                </li>
+                    <li class="list-group-item">
+                        <button name="consumer_username" type="submit" class="btn btn-link"
+                                value="<%- statuses.consumers.name[i] %>">
+                            <%- statuses.consumers.name[i] %></button>
+                        <% if(statuses.consumers.logged_in[i]) { %>
+                            <span class="badge badge-primary badge-pill">Logged in</span>
+                        <% }
+                        else { %><span class="badge badge-secondary badge-pill">Logged out</span>
+                        <% } %>
+                    </li>
                 <%
                 } %>
             </ul>
         </form>
+        <!-- prosumers -->
         <h5 class="mt-3">Current prosumers</h5>
         <form class="lead" method="post" action="/manager_inspection">
             <div class="input-group input-group-sm mb-3">
@@ -42,18 +46,21 @@
             <ul class="list-group list-group-flush" id="prosumers">
                 <% for (let i = 0;i < statuses.prosumers.name.length;i++) {
                 %>
-                <li class="list-group-item">
-                    <button name="prosumer_username" type="submit" class="btn btn-link" value="<%- statuses.prosumers.name[i] %>">
-                        <%- statuses.prosumers.name[i] %></button>
-                    <% if(statuses.prosumers.logged_in[i]) { %>
-                        <span class="badge badge-primary badge-pill">Logged in</span>
-                    <% }
-                    else { %><span class="badge badge-secondary badge-pill">Logged out</span>
-                    <% } if (parseInt(statuses.prosumers.sell_block[i],10) === 0) {%>
-                            <button name="block_prosumer_username" class="btn btn-danger" type="submit" value="<%- statuses.prosumers.name[i] %>">Block</button>
-                    <%} else {%>
-                        User is blocked from selling for: <%- statuses.prosumers.sell_block[i] %> seconds
-                        <%}%>
+                    <li class="list-group-item">
+                        <button name="prosumer_username" type="submit" class="btn btn-link"
+                                value="<%- statuses.prosumers.name[i] %>">
+                            <%- statuses.prosumers.name[i] %></button>
+                        <% if(statuses.prosumers.logged_in[i]) { %>
+                            <span class="badge badge-primary badge-pill">Logged in</span>
+                        <% }
+                        else { %><span class="badge badge-secondary badge-pill">Logged out</span>
+                        <% } if (parseInt(statuses.prosumers.sell_block[i], 10) === 0) { %>
+                            <button name="block_prosumer_username" class="btn btn-danger" type="submit"
+                                    value="<%- statuses.prosumers.name[i] %>">Block
+                            </button>
+                        <% } else { %>
+                            User is blocked from selling for: <%- statuses.prosumers.sell_block[i] %> seconds
+                        <% } %>
                     </li>
                 <%
                 } %>

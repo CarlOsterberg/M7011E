@@ -10,11 +10,13 @@ module.exports = class Sim {
         this.productionObj = new pr(this.windObj.avgWindHour);
         this.priceObj = new p(this.consumptionObj.consumption, this.productionObj.prod * this.productionObj.numProsumers);
     }
+
     updateHour() {
         this.windObj.generateAvgWindHour();
         this.productionObj.generateAvgProduction(this.windObj.avgWindHour);
-        this.priceObj.setPrice(this.consumptionObj.consumption, );
+        this.priceObj.setPrice(this.consumptionObj.consumption,);
     }
+
     updateDay() {
         this.windObj.generateAvgWindDay();
         this.consumptionObj.generateAvgConsumption();

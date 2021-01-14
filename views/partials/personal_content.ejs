@@ -1,33 +1,38 @@
+<!-- personal html -->
 <div class="container">
     <% if (ssn !== "Login") {
     %>
 
         <body style="background: url('https://group.vattenfall.com/contentassets/f027ef5034f542fc8db6289e1709ba4c/storrotliden101109155-1920.jpg');">
-            <div class="container">
-                <h1 class="text-center">My Account</h1>
-                <div style="float: left; overflow: hidden;">
-                    <img src=<%= image %> class="img-fluid" alt="Responsive image" style="width:300px; height:300px">
-                    <div className="container">
-                        <%= typeof msg != 'undefined' ? msg : ''%>
-                        <form action="/personal" method="POST" enctype="multipart/form-data">
-                            <input name="image" type="file">
-                            <button type="submit" class="btn btn-dark">Submit</button>
-                        </form>
-                    </div>
-                </div>
-                <div class="float-child" style="float: right; overflow: hidden;">
-                    <body>
-                        <h1 class="text-center">My Account</h1>
-                        <h4 class="text-center">Name: <%= ssn.name %></h4>
-                        <h4 class="text-center">Username: <%= ssn.user %></h4>
-                        <h4 class="text-center">Email: <%= ssn.email %></h4>
-                        <h4 class="text-center">Role: <%= ssn.role %></h4>
-                        <form class="form-signin" action="/update_personal" method="post">
-                        <button name="update_personal" type="submit" class="btn btn-dark btn-lg btn-block">Change user details</button>
-                        </form>
-                    </body>
+        <div class="container">
+            <h1 class="text-center">My Account</h1>
+            <div style="float: left; overflow: hidden;">
+                <!-- image display and upload -->
+                <img src=<%= image %> class="img-fluid" alt="Responsive image" style="width:300px; height:300px">
+                <div className="container">
+                    <%= typeof msg != 'undefined' ? msg : '' %>
+                    <form action="/personal" method="POST" enctype="multipart/form-data">
+                        <input name="image" type="file">
+                        <button type="submit" class="btn btn-dark">Submit</button>
+                    </form>
                 </div>
             </div>
+            <!-- information display -->
+            <div class="float-child" style="float: right; overflow: hidden;">
+                <body>
+                <h1 class="text-center">My Account</h1>
+                <h4 class="text-center">Name: <%= ssn.name %></h4>
+                <h4 class="text-center">Username: <%= ssn.user %></h4>
+                <h4 class="text-center">Email: <%= ssn.email %></h4>
+                <h4 class="text-center">Role: <%= ssn.role %></h4>
+                <form class="form-signin" action="/update_personal" method="post">
+                    <button name="update_personal" type="submit" class="btn btn-dark btn-lg btn-block">Change user
+                        details
+                    </button>
+                </form>
+                </body>
+            </div>
+        </div>
         </body>
     <%
     } else {

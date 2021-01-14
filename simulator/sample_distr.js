@@ -1,7 +1,6 @@
 //https://stackoverflow.com/questions/25582882/javascript-math-random-normal-distribution-gaussian-bell-curve
 module.exports = {
-    nrml_distr_val: function(min, max)
-    {
+    nrml_distr_val: function (min, max) {
         let u = 0, v = 0;
         while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
         while (v === 0) v = Math.random();
