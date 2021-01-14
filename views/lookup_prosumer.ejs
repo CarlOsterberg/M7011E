@@ -84,29 +84,28 @@
 </main>
 <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
 <script type="text/javascript">
-    setInterval(function(){
+    setInterval(function () {
         $.post("/manager_lookup_ajax",
             {
                 prosumer: $('#user').text(),
             },
-            function(data, status){
+            function (data, status) {
                 $('#wind').html(data.wind);
                 $('#production').html(data.prosumer.production);
                 $('#consumption').html(data.prosumer.consumption);
-                $('#netto').html(data.prosumer.production-data.prosumer.consumption);
+                $('#netto').html(data.prosumer.production - data.prosumer.consumption);
                 $('#battery').html(data.prosumer.battery);
                 $('#battery_use').html(data.prosumer.battery_use);
                 $('#battery_sell').html(data.prosumer.battery_sell);
                 $('#blackout').html(data.prosumer.blackout);
                 if (data.prosumer.blackout) {
                     $('#blackout').html("true");
-                }
-                else {
+                } else {
                     $('#blackout').html("false");
                 }
             });
         return false;
-    },100);
+    }, 100);
 </script>
 </body>
 </html>

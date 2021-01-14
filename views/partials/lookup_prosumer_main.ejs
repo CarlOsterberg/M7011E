@@ -21,11 +21,13 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1">Name</span>
                 </div>
-                <input name="name" required type="text" class="form-control" aria-label="Username" aria-describedby="basic-addon1" value="<%= ssn.name %>">
+                <input name="name" required type="text" class="form-control" aria-label="Username"
+                       aria-describedby="basic-addon1" value="<%= ssn.name %>">
             </div>
 
             <div class="input-group mb-3">
-                <input name="username" required type="text" class="form-control" aria-label="Recipient's username" aria-describedby="basic-addon2" value="<%= ssn._id %>">
+                <input name="username" required type="text" class="form-control" aria-label="Recipient's username"
+                       aria-describedby="basic-addon2" value="<%= ssn._id %>">
                 <div class="input-group-append">
                     <span class="input-group-text" id="basic-addon2">Username</span>
                 </div>
@@ -35,7 +37,8 @@
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1">Email</span>
                 </div>
-                <input name="email" required type="email" class="form-control" aria-label="Username" aria-describedby="basic-addon1" value="<%= ssn.email %>">
+                <input name="email" required type="email" class="form-control" aria-label="Username"
+                       aria-describedby="basic-addon1" value="<%= ssn.email %>">
             </div>
 
             <div class="input-group mb-3">
@@ -45,8 +48,12 @@
                 </div>
             </div>
 
-            <button name="old_username" type="submit" class="btn btn-primary btn-lg btn-block" value="<%- ssn._id %>">Change user details</button>
-            <button name="delete_username" type="submit" class="btn btn-secondary btn-lg btn-block" value="<%- ssn._id %>">Delete user</button>
+            <button name="old_username" type="submit" class="btn btn-primary btn-lg btn-block" value="<%- ssn._id %>">
+                Change user details
+            </button>
+            <button name="delete_username" type="submit" class="btn btn-secondary btn-lg btn-block"
+                    value="<%- ssn._id %>">Delete user
+            </button>
         </form>
     </div>
 

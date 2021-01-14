@@ -2,17 +2,12 @@ const express = require('express');
 const {graphqlHTTP} = require('express-graphql');
 const {buildSchema} = require('graphql');
 const s = require("./sim");
-
 let simulator = new s();
-
 let currentdate = new Date();
 let latestHour = currentdate.getSeconds();
 let latestDay = currentdate.getMinutes();
 
 // Construct a schema, using GraphQL schema language
-
-
-
 const schema = buildSchema(`
     type Query {
         price: Float!
@@ -29,14 +24,13 @@ const Query = {
         currentdate = new Date();
         currentHour = currentdate.getSeconds();
         currentDay = currentdate.getMinutes();
-        if (currentDay!==latestDay) {
+        if (currentDay !== latestDay) {
             simulator.windObj.generateAvgWindDay();
             simulator.windObj.generateAvgWindHour();
             latestDay = currentDay;
             latestHour = currentHour;
             simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
-        }
-        else if (currentHour>latestHour+10) {
+        } else if (currentHour > latestHour + 10) {
             simulator.windObj.generateAvgWindHour();
             latestHour = currentHour;
             simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);

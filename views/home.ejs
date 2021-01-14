@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <!-- saved from url=(0064)https://getbootstrap.com/docs/4.5/examples/sticky-footer-navbar/ -->
-<html lang="en" class="h-100"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html lang="en" class="h-100">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -12,62 +14,75 @@
     <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/sticky-footer-navbar/">
 
     <!-- Bootstrap core CSS -->
-<link href="site_files/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="site_files/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
     <!-- Favicons -->
 
 
     <style>
-      .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-      }
-
-      @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-          font-size: 3.5rem;
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
-      }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
     </style>
     <!-- Custom styles for this template -->
     <link href="site_files/sticky-footer-navbar.css" rel="stylesheet">
-  </head>
-  <body>
-    <header>
-  <!-- Fixed navbar -->
-  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="home"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-house-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd" d="M8 3.293l6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6zm5-.793V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
-              <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"/>
-          </svg></a>
-        </li>
-          <li class="nav-item">
-              <a class="nav-link" href="personal"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-person-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-              </svg></a>
-          </li>
+</head>
+<body>
+<header>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="home">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-house-fill" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                  d="M8 3.293l6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293l6-6zm5-.793V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
+                            <path fill-rule="evenodd"
+                                  d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"/>
+                        </svg>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="personal">
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-person-fill" fill="currentColor"
+                             xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd"
+                                  d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                        </svg>
+                    </a>
+                </li>
 
-        <% if (ssn.role === "Manager") {
-        %>
-              <li class="nav-item">
-                  <a class="nav-link" href="user_overview"><svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-three-dots-vertical" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                          <path fill-rule="evenodd" d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-                      </svg></a>
-              </li>
-          <%
-        } %>
+                <% if (ssn.role === "Manager") {
+                %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="user_overview">
+                            <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-three-dots-vertical"
+                                 fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd"
+                                      d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                            </svg>
+                        </a>
+                    </li>
+                <%
+                } %>
 
-      </ul>
-        <%- include('partials/login_button') %>
-    </div>
-  </nav>
+            </ul>
+            <%- include('partials/login_button') %>
+        </div>
+    </nav>
 </header>
 
 <!-- Begin page content -->
@@ -77,38 +92,35 @@
 
 <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
 <script type="text/javascript">
-    setInterval(function(){
-        $.get( '/ajax', function(data) {
-            if (data.user){
+    setInterval(function () {
+        $.get('/ajax', function (data) {
+            if (data.user) {
                 $('#wind').html(data.wind);
                 $('#production').html(data.production);
                 $('#consumption').html(data.consumption);
-                $('#netto').html(data.production-data.consumption);
+                $('#netto').html(data.production - data.consumption);
                 $('#battery').html(data.battery);
                 $('#use_display').html(data.battery_use);
                 $('#storage_display').html(data.battery_sell);
                 $('#price').html(data.price);
                 $('#market_demand').html(data.market_demand);
                 $('#market_sell').html(data.market_sell);
-                if (data.role === "Prosumer" && data.sell_block>0) {
-                    $('#sell_block').css('display','inherit');
+                if (data.role === "Prosumer" && data.sell_block > 0) {
+                    $('#sell_block').css('display', 'inherit');
                     $('#sell_block').html("Amount of time blocked from selling to power plant: " + data.sell_block)
+                } else {
+                    $('#sell_block').css('display', 'none');
                 }
-                else {
-                    $('#sell_block').css('display','none');
-                }
-                if (data.role!=="Manager") {
+                if (data.role !== "Manager") {
                     if (data.blackout) {
                         $('#blackout').html("true");
-                    }
-                    else {
+                    } else {
                         $('#blackout').html("false");
                     }
-                    if(data.alert){
-                        $('#alert').css('display','inherit');
-                    }
-                    else{
-                        $('#alert').css('display','none');
+                    if (data.alert) {
+                        $('#alert').css('display', 'inherit');
+                    } else {
+                        $('#alert').css('display', 'none');
                     }
                 }
                 if (data.role === "Manager") {
@@ -119,50 +131,49 @@
                     $.get('/get_blackouts', function (data) {
                         $('#blackouts').html(data.nmbr_blackouts);
                         if (data.prosumer_blackouts !== "") {
-                            $('#b_p').css('display','inherit');
+                            $('#b_p').css('display', 'inherit');
                             $('#blackouts_prosumers').html(data.prosumer_blackouts)
-                        }
-                        else {
-                            $('#b_p').css('display','none');
+                        } else {
+                            $('#b_p').css('display', 'none');
                         }
 
                     })
                 }
             }
         })
-        
+
     }, 1000);
-    $("#form").submit(function(){
+    $("#form").submit(function () {
         $.post("/ajax",
             {
                 use: $('#use').val(),
                 storage: $('#storage').val(),
                 pp_production: $('#pp_production').val()
             },
-            function(data, status){
+            function (data, status) {
                 $('#use_display').html(data.use);
                 $('#storage_display').html(data.storage);
                 $('#production').html(data.pp_production);
             });
         return false;
     });
-    $("#ratio_f").submit(function(){
+    $("#ratio_f").submit(function () {
         $.post('/adjust_pp_ratio',
             {
                 pp_ratio: $('#pp_ratio').val()
             },
-            function(data, status){
-                $('#pp_ratio').html(data.ratio,10);
+            function (data, status) {
+                $('#pp_ratio').html(data.ratio, 10);
                 $('#pp_storage_ratio').html(data.ratio);
             });
         return false;
     });
-    $("#price_form").submit(function(){
+    $("#price_form").submit(function () {
         $.post('/set_price',
             {
                 new_price: $('#manual_price').val()
             },
-            function(data, status){
+            function (data, status) {
                 $('#price').html(data.price)
             });
         return false;

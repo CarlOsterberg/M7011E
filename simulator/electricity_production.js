@@ -5,12 +5,12 @@ module.exports = class Production {
     }
 
     generateAvgProduction(wph) {
-        if (wph<3) {
+        if (wph < 3) {
             this.prod = 0;
-        }
-        else {
+        } else {
+
             //when wind = 7.5 m/s, production = 55 kWh (Both averages).
-            this.prod = wph * (55/7.5);
+            this.prod = wph * (55 / 7.5);
         }
     }
 }

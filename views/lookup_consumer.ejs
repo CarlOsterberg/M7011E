@@ -84,23 +84,22 @@
 </main>
 <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
 <script type="text/javascript">
-    setInterval(function(){
+    setInterval(function () {
         $.post("/manager_lookup_ajax",
             {
                 consumer: $('#user').text(),
             },
-            function(data, status){
+            function (data, status) {
                 $('#consumption').html(data.consumer.consumption);
                 //$('#blackout').html(data.consumer.blackout);
                 if (data.consumer.blackout) {
                     $('#blackout').html("true");
-                }
-                else {
+                } else {
                     $('#blackout').html("false");
                 }
             });
         return false;
-    },100);
+    }, 100);
 </script>
 </body>
 </html>
