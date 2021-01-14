@@ -1,13 +1,14 @@
 <a class="navbar-text"
-        <%if (ssn.user) {
-            %>
-            href="logout"
-            onmouseover="this.innerHTML='Logout';"
-            onmouseout="this.innerHTML='<%= ssn.user %>';"
-            tabindex="-1"><%= ssn.user %></a>
-            <%
-        } else {
-            %>
-            href="login" tabindex="-1">Login</a>
-            <%
-        }%>
+<% if (ssn.user) {
+%>
+   href="logout"
+   onmouseover="this.innerHTML='Logout';"
+   onmouseout="this.innerHTML='<%= ssn.user %>';"
+   tabindex="-1">
+    <%= ssn.user %></a>
+<%
+} else {
+%>
+    href="login" tabindex="-1">Login</a>
+<%
+} %>

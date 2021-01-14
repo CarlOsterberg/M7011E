@@ -1285,7 +1285,7 @@ app.post('/update_val_pers', function (req, res) {
                                                         "battery": old.battery,
                                                         "blackouts": old.blackouts,
                                                         "recommended_price": old.recommended_price,
-                                                        "ratio":old.ratio
+                                                        "ratio": old.ratio
                                                     }, function (err, writeRes) {
                                                         if (err) {
                                                             return console.log(err)
@@ -1344,7 +1344,8 @@ app.get('/get_blackouts', function (req, res) {
                                 prosumer_blackouts += "<li>" + prosumers[i]._id + "</li>"
                             }
                         }
-                        res.send({"nmbr_blackouts": nmbr_blackouts,
+                        res.send({
+                            "nmbr_blackouts": nmbr_blackouts,
                             "prosumer_blackouts": prosumer_blackouts,
                             "consumer_blackouts": consumer_blackouts
                         })

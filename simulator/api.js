@@ -10,7 +10,6 @@ let Hours = 0;
 // Construct a schema, using GraphQL schema language
 
 
-
 const schema = buildSchema(`
     type Query {
         price: Float!
@@ -33,7 +32,7 @@ const Query = {
             simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
         }
         //new hour
-        else  {
+        else {
             simulator.windObj.generateAvgWindHour();
             simulator.consumptionObj.generateMultipleHouses(numUsers);
             simulator.productionObj.generateAvgProduction(simulator.windObj.avgWindHour);
@@ -48,7 +47,7 @@ const Query = {
     },
     price: () => {
         simulator.priceObj.setPrice(simulator.consumptionObj.consumption_avg,
-            simulator.productionObj.numProsumers/simulator.consumptionObj.numUsers)
+            simulator.productionObj.numProsumers / simulator.consumptionObj.numUsers)
         return simulator.priceObj.demandPrice
     },
 }

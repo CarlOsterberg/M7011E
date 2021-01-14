@@ -7,14 +7,15 @@ module.exports = class Wind {
         this.generateAvgWindDay();
         this.generateAvgWindHour();
     }
+
     generateAvgWindDay() {
-        this.avgWindDay = generate.nrml_distr_val(this.min,this.max);
+        this.avgWindDay = generate.nrml_distr_val(this.min, this.max);
     }
+
     generateAvgWindHour() {
         if (this.avgWindDay - 4 < 0) {
             this.avgWindHour = generate.nrml_distr_val(0, this.avgWindDay + 4);
-        }
-        else {
+        } else {
             this.avgWindHour = generate.nrml_distr_val(this.avgWindDay - 4, this.avgWindDay + 4);
         }
     }

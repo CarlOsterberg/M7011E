@@ -215,7 +215,7 @@ function resetDbValues() {
                         price: 0,
                         alert: false,
                         blackouts: 0,
-                        pp_status:"stopped",
+                        pp_status: "stopped",
                         ratio: 0
                     })
                 }
