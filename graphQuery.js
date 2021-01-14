@@ -177,7 +177,7 @@ try {
                 });
             });
         });
-    }, 5000);
+    }, 1000);
 } catch (error) {
     console.log(error)
 }
