@@ -75,6 +75,7 @@ let market_demand = 0;
 let market_sell = 0;
 let alert = false;
 
+//get a formatted json object of consumers and prosumers
 function formattedUserJSON(req, callback) {
     if (req.session.user) {
         if (req.session.role === "Manager") {
@@ -133,6 +134,7 @@ function formattedUserJSON(req, callback) {
     }
 }
 
+//block a user from selling electricity to market
 function blockLoop(user) {
     setTimeout(function () {
         MongoClient.connect(url, {
@@ -229,7 +231,6 @@ function updateDisplayVals(req, callback) {
     });
 
 }
-
 
 app.get('/', (req, res) => {
     return res.redirect('/home');
@@ -722,6 +723,7 @@ app.post('/adjust_pp_ratio', function (req, res) {
     }
 })
 
+//manager overview for specific user
 app.post('/manager_inspection', function (req, res) {
     if (req.session.user) {
         if (req.session.role === "Manager") {
@@ -1063,7 +1065,6 @@ app.post('/update_details', function (req, res) {
     }
 });
 
-//redirect to update_personal page
 app.post('/update_personal', function (req, res) {
     MongoClient.connect(url, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
         if (err) return console.log(err)
