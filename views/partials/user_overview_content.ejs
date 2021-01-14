@@ -1,3 +1,4 @@
+<!-- manager user list html -->
 <div class="container">
     <% if (ssn === "Login") {
     %>
@@ -10,6 +11,7 @@
     }
     else {
     %>
+        <!-- consumers -->
         <h1 class="mt-5">User statuses</h1>
         <h5 class="mt-3">Current consumers</h5>
         <form class="lead" method="post" action="/manager_inspection">
@@ -30,6 +32,7 @@
                 } %>
             </ul>
         </form>
+        <!-- prosumers -->
         <h5 class="mt-3">Current prosumers</h5>
         <form class="lead" method="post" action="/manager_inspection">
             <div class="input-group input-group-sm mb-3">

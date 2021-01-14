@@ -1,3 +1,4 @@
+<!-- personal html -->
 <div class="container">
     <% if (ssn !== "Login") {
     %>
@@ -6,6 +7,7 @@
         <div class="container">
             <h1 class="text-center">My Account</h1>
             <div style="float: left; overflow: hidden;">
+                <!-- image display and upload -->
                 <img src=<%= image %> class="img-fluid" alt="Responsive image" style="width:300px; height:300px">
                 <div className="container">
                     <%= typeof msg != 'undefined' ? msg : '' %>
@@ -15,6 +17,7 @@
                     </form>
                 </div>
             </div>
+            <!-- information display -->
             <div class="float-child" style="float: right; overflow: hidden;">
                 <body>
                 <h1 class="text-center">My Account</h1>
